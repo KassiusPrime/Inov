@@ -1,0 +1,31 @@
+De: edilsonaguiar@policiamilitar.sp.gov.br em nome de 1bprvcc@policiamilitar.sp.gov.br
+Para: Bruna.S.Andrade@ecovias.com.br, Wagner.Silva@ecovias.com.br
+Data: 24/07/2026 08:52
+Assunto: MSG 1BPRv-304/08/24, Proc. 278 - aquisição de materiais de limpeza, AGO.
+
+Prezada Bruna Andrade e equipe GCC (Ecovias dos Imigrantes / Ecopistas),
+
+Solicitamos providências para a criação de pedido direto de compra no SAP (ME21N) em atendimento ao Convênio PMRv nº 6.877/2023.
+
+Dados do processo de compra:
+- Unidade Militar: 1º Batalhão de Polícia Rodoviária (1º BPRv)
+- Processo Administrativo: 278/2026
+- Objeto: Aquisição de materiais diversos de limpeza e higiene operacional
+- Fornecedor Homologado: MAXIMA DIST (CNPJ: 14.529.260/0001-63 | Inscr. Estadual: 286196657112)
+- Centro de Custo Convênio Ecovias: 000.088702
+- Organização de Compras: 0C03 (Ecovias) / 0C05 (Ecopistas)
+- Grupo de Compradores: 344 (Karla)
+- Condição de Pagamento: 0001
+- Incoterm: CIF -
+- Código de Imposto (IVA): C0
+
+Pontos Focais na Concessionária:
+Bruna Silva de Andrade | GEN | Ponto Focal | Imigrantes | Bruna.S.Andrade@ecovias.com.br | Wagner da Silva
+Wagner da Silva | GEN | Integrante | Imigrantes | Wagner.Silva@ecovias.com.br | Wagner da Silva
+
+Caminhos de Rede para Registro da Planilha de Controle:
+Ecovias: W:\AAC\CPC\DEPARTAMENTAL\4. OBRIGAÇÕES CONTRATUAIS\2. PMRV\1. Demonstrativo de Verba\01. Atual_ PMRv ECOVIAS
+Ecopistas: W:\AAC\CPC\DEPARTAMENTAL\4. OBRIGAÇÕES CONTRATUAIS\2. PMRV\1. Demonstrativo de Verba\01. Atual_ PMRv ECOPISTAS
+
+Atenciosamente,
+Comando do 1º BPRv - Polícia Militar do Estado de São Paulo
