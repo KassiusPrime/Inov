@@ -1,0 +1,2492 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INOV | Controle de E-mails, Contatos & Mala Direta</title>
+    <!-- Tailwind CSS para desenvolvimento ágil e responsivo -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js para renderização de gráficos executivos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Biblioteca de Ícones Corporativos Lineares (Lucide Icons) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+    </style>
+    <!-- SheetJS para leitura nativa de planilhas Excel .xlsx/.xls -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body class="text-slate-800">
+
+    <!-- Header com Identidade Visual Oficial EcoRodovias SP -->
+    <header class="bg-[#0b3c25] text-white shadow-lg sticky top-0 z-50">
+        <!-- Linha laranja de sinalização e segurança viária superior -->
+        <div class="h-1.5 w-full bg-[#FF9E1B]"></div>
+        
+        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col lg:flex-row justify-between items-center">
+            <div class="flex items-center space-x-3 mb-4 lg:mb-0">
+                <div class="bg-white p-2.5 rounded-xl text-[#008542] shadow-sm flex items-center justify-center">
+                    <i data-lucide="route" class="w-8 h-8 text-[#008542]" stroke-width="1.5"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-wider flex items-center">
+                        SISTEMA INOV 
+                        <span class="ml-2 text-[10px] bg-[#FF9E1B] text-slate-900 font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-normal">EcoRodovias SP</span>
+                    </h1>
+                    <p class="text-xs text-green-100/80">Controle de E-mails por Área, Extração de Documentos & Modelos Padronizados</p>
+                </div>
+            </div>
+            
+            <!-- Menu de Abas Otimizadas -->
+            <nav class="flex flex-wrap gap-2 justify-center">
+                <button onclick="switchTab('consulta')" id="btn-consulta" class="tab-btn px-4 py-2 rounded-lg font-semibold text-sm transition-all bg-[#008542] text-white shadow-md flex items-center space-x-1.5">
+                    <i data-lucide="mail-search" class="w-4 h-4" stroke-width="1.5"></i>
+                    <span>Central de Mensagens</span>
+                </button>
+                <button onclick="switchTab('lote')" id="btn-lote" class="tab-btn px-4 py-2 rounded-lg font-semibold text-sm transition-all hover:bg-white/10 text-green-100 flex items-center space-x-1.5">
+                    <i data-lucide="file-up" class="w-4 h-4" stroke-width="1.5"></i>
+                    <span>Importação em Lote</span>
+                </button>
+                <button onclick="switchTab('base')" id="btn-base" class="tab-btn px-4 py-2 rounded-lg font-semibold text-sm transition-all hover:bg-white/10 text-green-100 flex items-center space-x-1.5">
+                    <i data-lucide="database" class="w-4 h-4" stroke-width="1.5"></i>
+                    <span>Repositório tbContatos</span>
+                </button>
+                <button onclick="switchTab('dashboard')" id="btn-dashboard" class="tab-btn px-4 py-2 rounded-lg font-semibold text-sm transition-all hover:bg-white/10 text-green-100 flex items-center space-x-1.5">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4" stroke-width="1.5"></i>
+                    <span>Dashboard & Auditoria</span>
+                </button>
+                <button onclick="switchTab('powerbi')" id="btn-powerbi" class="tab-btn px-4 py-2 rounded-lg font-semibold text-sm transition-all hover:bg-white/10 text-green-100 flex items-center space-x-1.5">
+                    <i data-lucide="bar-chart-3" class="w-4 h-4" stroke-width="1.5"></i>
+                    <span>Modelagem BI</span>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-8">
+
+        <!-- ALERTA DE SUCESSO FLUTUANTE -->
+        <div id="toast" class="fixed bottom-5 right-5 bg-emerald-600 text-white px-6 py-3 rounded-xl shadow-2xl transition-all duration-300 opacity-0 pointer-events-none flex items-center space-x-2 z-50">
+            <i data-lucide="check-circle-2" class="w-5 h-5" stroke-width="1.5"></i>
+            <span id="toast-message" class="font-medium">Texto copiado!</span>
+        </div>
+
+        <!-- TAB 1: CENTRAL DE MENSAGENS -->
+        <section id="tab-content-consulta" class="tab-pane block">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                
+                <!-- Filtros de Pesquisa -->
+                <div class="lg:col-span-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <div class="flex items-center justify-between mb-4 pb-2 border-b border-slate-100">
+                        <h2 class="text-lg font-bold text-[#008542] flex items-center">
+                            <i data-lucide="sliders-horizontal" class="w-5 h-5 mr-2 text-[#008542]" stroke-width="1.5"></i>
+                            Filtros de Pesquisa
+                        </h2>
+                        <button onclick="resetAllFilters()" class="text-xs font-semibold text-[#008542] hover:text-green-800 transition-all flex items-center space-x-1">
+                            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5" stroke-width="1.5"></i>
+                            <span>Limpar</span>
+                        </button>
+                    </div>
+
+                    <!-- Filtro por Concessão -->
+                    <div class="mb-5">
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider">Concessão</label>
+                            <div class="space-x-2 text-[10px] font-bold text-[#008542]">
+                                <button onclick="toggleGroupFilter('concessions', true)" class="hover:underline">Todos</button>
+                                <span>|</span>
+                                <button onclick="toggleGroupFilter('concessions', false)" class="hover:underline">Nenhum</button>
+                            </div>
+                        </div>
+                        <div class="space-y-2" id="filter-concession">
+                            <!-- Inserido dinamicamente -->
+                        </div>
+                    </div>
+
+                    <hr class="my-4 border-slate-100">
+
+                    <!-- Filtro por Setor/Área -->
+                    <div class="mb-5">
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider">Área / Setor</label>
+                            <div class="space-x-2 text-[10px] font-bold text-[#008542]">
+                                <button onclick="toggleGroupFilter('areas', true)" class="hover:underline">Todos</button>
+                                <span>|</span>
+                                <button onclick="toggleGroupFilter('areas', false)" class="hover:underline">Nenhum</button>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2" id="filter-area">
+                            <!-- Inserido dinamicamente -->
+                        </div>
+                    </div>
+
+                    <hr class="my-4 border-slate-100">
+
+                    <!-- Filtro por Função -->
+                    <div class="mb-5">
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider">Função</label>
+                            <div class="space-x-2 text-[10px] font-bold text-[#008542]">
+                                <button onclick="toggleGroupFilter('functions', true)" class="hover:underline">Todos</button>
+                                <span>|</span>
+                                <button onclick="toggleGroupFilter('functions', false)" class="hover:underline">Nenhum</button>
+                            </div>
+                        </div>
+                        <div class="space-y-2" id="filter-function">
+                            <!-- Inserido dinamicamente -->
+                        </div>
+                    </div>
+
+                    <hr class="my-4 border-slate-100">
+
+                    <!-- Filtro por Status -->
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider">Status</label>
+                            <div class="space-x-2 text-[10px] font-bold text-[#008542]">
+                                <button onclick="toggleGroupFilter('status', true)" class="hover:underline">Todos</button>
+                                <span>|</span>
+                                <button onclick="toggleGroupFilter('status', false)" class="hover:underline">Nenhum</button>
+                            </div>
+                        </div>
+                        <div class="space-y-2" id="filter-status">
+                            <!-- Inserido dinamicamente -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Coluna da Direita: Mailing Inteligente e Resultados -->
+                <div class="lg:col-span-8 space-y-8">
+                    
+                    <!-- Bloco de Mala Direta com Conectores M365 -->
+                    <div class="bg-green-50/20 p-6 rounded-2xl border border-green-100 shadow-sm">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
+                            <div>
+                                <h2 class="text-lg font-bold text-[#008542] flex items-center">
+                                    <span class="bg-[#008542] text-white p-2 rounded-xl mr-2 flex items-center justify-center shadow-sm">
+                                        <i data-lucide="mail" class="w-4 h-4" stroke-width="1.5"></i>
+                                    </span>
+                                    Cadeia de Destinatários Outlook
+                                </h2>
+                                <p class="text-xs text-slate-500">Contactos consolidados e limpos de duplicidades de forma automática.</p>
+                            </div>
+                            
+                            <!-- Seletor de Separador -->
+                            <div class="flex items-center space-x-2 bg-white px-3 py-1.5 rounded-xl border border-slate-200">
+                                <i data-lucide="hash" class="w-3.5 h-3.5 text-slate-400" stroke-width="1.5"></i>
+                                <label class="text-[10px] font-bold text-slate-400 uppercase">Separador:</label>
+                                <select id="mail-separator" onchange="renderConsulta()" class="text-xs font-semibold text-slate-700 bg-transparent focus:outline-none cursor-pointer">
+                                    <option value="semicolon">Ponto e Vírgula ( ; )</option>
+                                    <option value="comma">Vírgula ( , )</option>
+                                    <option value="newline">Quebra de Linha</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Célula Alta Unificada -->
+                        <div class="relative mb-4">
+                            <textarea id="mailing-box" readonly class="w-full h-24 p-4 text-xs font-mono bg-white rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#008542] text-slate-700 resize-none" placeholder="Filtre os contatos para gerar a cadeia de e-mails correspondente..."></textarea>
+                        </div>
+
+                        <!-- Conectores Microsoft 365 e Produtividade -->
+                        <div class="grid grid-cols-1 sm:grid-cols-4 gap-2 mb-6">
+                            <button onclick="copyMailing()" class="bg-[#008542] hover:bg-green-700 text-white font-bold text-xs py-3 px-4 rounded-xl shadow-sm transition-all flex items-center justify-center space-x-1.5">
+                                <i data-lucide="copy" class="w-4 h-4" stroke-width="1.5"></i>
+                                <span>Copiar Cadeia</span>
+                            </button>
+                            <button onclick="openInOutlook()" class="bg-[#0b3c25] hover:bg-slate-900 text-white font-bold text-xs py-3 px-4 rounded-xl shadow-sm transition-all flex items-center justify-center space-x-1.5" title="Disparar e-mail no cliente Outlook local">
+                                <i data-lucide="send" class="w-4 h-4" stroke-width="1.5"></i>
+                                <span>Abrir no Outlook</span>
+                            </button>
+                            <button onclick="openInOutlookWeb()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs py-3 px-4 rounded-xl shadow-sm transition-all flex items-center justify-center space-x-1.5" title="Abrir Outlook no navegador pelo Microsoft 365 corporativo">
+                                <i data-lucide="chrome" class="w-4 h-4" stroke-width="1.5"></i>
+                                <span>Outlook Web (M365)</span>
+                            </button>
+                            <button onclick="downloadEML()" class="bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs py-3 px-4 rounded-xl shadow-sm transition-all flex items-center justify-center space-x-1.5" title="Baixar arquivo de rascunho de e-mail pronto para o Outlook">
+                                <i data-lucide="file-text" class="w-4 h-4" stroke-width="1.5"></i>
+                                <span>Rascunho (.eml)</span>
+                            </button>
+                        </div>
+
+                        <!-- Redator de Mala Direta & Modelos Padronizados -->
+                        <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm mb-6">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex items-center space-x-2">
+                                    <div class="bg-[#008542]/10 p-1.5 rounded-lg text-[#008542]">
+                                        <i data-lucide="mail-check" class="w-4 h-4" stroke-width="2"></i>
+                                    </div>
+                                    <h3 class="text-sm font-bold text-[#008542] uppercase tracking-wide">
+                                        Redator de Mala Direta & Estruturas Padronizadas
+                                    </h3>
+                                </div>
+                                <span class="text-[10px] font-bold bg-[#FF9E1B]/10 text-[#d97706] border border-[#FF9E1B]/20 px-2.5 py-0.5 rounded-full flex items-center">
+                                    <i data-lucide="layers" class="w-3 h-3 mr-1" stroke-width="1.5"></i>
+                                    Modelos + IA
+                                </span>
+                            </div>
+                            <p class="text-xs text-slate-500 mb-4">Selecione uma estrutura padronizada para substituir automaticamente as partes-chave do texto com base na sua triagem por área/concessão, ou refine o texto com IA.</p>
+                            
+                            <!-- Seleção de Template e Pauta -->
+                            <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 mb-3">
+                                <div class="sm:col-span-4">
+                                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Modelo de Estrutura</label>
+                                    <select id="ai-email-template" onchange="onTemplateChange()" class="w-full text-xs border border-slate-200 rounded-lg p-2.5 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-green-600 text-slate-700">
+                                        <option value="comunicado">Comunicado Operacional / Rotina</option>
+                                        <option value="cobranca">Cobrança de Prazo & Notificação de Pendência</option>
+                                        <option value="convocacao">Convocação de Reunião & Alinhamento de Pauta</option>
+                                        <option value="solicitacao">Solicitação Técnica & Coleta de Dados</option>
+                                        <option value="circular">Circular Institucional às Concessões</option>
+                                        <option value="customizado">Modelo Livre com Tags Dinâmicas</option>
+                                    </select>
+                                </div>
+                                <div class="sm:col-span-8">
+                                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Pauta / Assunto Central ({ASSUNTO})</label>
+                                    <input type="text" id="ai-email-context" class="w-full text-xs border border-slate-200 rounded-lg p-2.5 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-green-600 text-slate-700" placeholder="Ex: Auditorias de pavimentação e infraestrutura rodoviária do 2º semestre">
+                                </div>
+                            </div>
+
+                            <!-- Campos de Variáveis-Chave adicionais -->
+                            <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 mb-3">
+                                <div class="sm:col-span-6">
+                                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Prazo Limite / Vencimento ({PRAZO})</label>
+                                    <input type="text" id="template-prazo" class="w-full text-xs border border-slate-200 rounded-lg p-2.5 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-green-600 text-slate-700" placeholder="Ex: 30/09/2026 às 17h00">
+                                </div>
+                                <div class="sm:col-span-6">
+                                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Referência Documental ({REFERENCIA_DOCUMENTO})</label>
+                                    <input type="text" id="template-ref" class="w-full text-xs border border-slate-200 rounded-lg p-2.5 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-green-600 text-slate-700" placeholder="Ex: Ofício nº 6.877/2023 / Processo SEI 2026/001847">
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Detalhamento / Instruções Adicionais ({CORPO_TEXTO})</label>
+                                <textarea id="template-detalhes" rows="2" class="w-full text-xs border border-slate-200 rounded-lg p-2.5 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-green-600 text-slate-700 resize-none" placeholder="Instruções específicas para o corpo da mensagem..."></textarea>
+                            </div>
+
+                            <!-- Botões de Ação do Redator -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <button id="btn-apply-template" onclick="applyStandardizedTemplate()" class="bg-[#008542] hover:bg-green-700 text-white font-bold text-xs py-2.5 px-4 rounded-lg shadow-sm transition-all flex items-center justify-center space-x-2">
+                                    <i data-lucide="layout-template" class="w-4 h-4" stroke-width="1.5"></i>
+                                    <span>Aplicar Estrutura Padronizada (Instantâneo)</span>
+                                </button>
+                                <button id="btn-generate-email-ai" onclick="generateEmailWithAI()" class="bg-indigo-700 hover:bg-indigo-800 text-white font-bold text-xs py-2.5 px-4 rounded-lg shadow-sm transition-all flex items-center justify-center space-x-2">
+                                    <i data-lucide="sparkles" class="w-4 h-4" stroke-width="1.5"></i>
+                                    <span>Refinar Texto com Gemini AI</span>
+                                </button>
+                            </div>
+
+                            <!-- Resultado da Mensagem Formatada -->
+                            <div id="ai-email-result-container" class="hidden mt-4 pt-4 border-t border-slate-200">
+                                <div class="mb-3">
+                                    <label class="block text-xs font-bold text-slate-500 mb-1">Assunto do E-mail</label>
+                                    <div class="flex items-center space-x-2">
+                                        <input type="text" id="ai-email-subject" class="w-full text-xs font-semibold p-2 bg-slate-50 rounded-lg border border-slate-200 focus:outline-none text-slate-800">
+                                        <button onclick="copyText('ai-email-subject')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-lg text-xs font-bold flex items-center space-x-1">
+                                            <i data-lucide="copy" class="w-3.5 h-3.5" stroke-width="1.5"></i>
+                                            <span>Copiar</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 mb-1">Corpo da Mensagem Formatado</label>
+                                    <textarea id="ai-email-body" class="w-full h-48 p-3 text-xs bg-slate-50 rounded-lg border border-slate-200 focus:outline-none text-slate-700 font-sans leading-relaxed" style="white-space: pre-wrap;"></textarea>
+                                    <div class="flex justify-end mt-2">
+                                        <button onclick="copyText('ai-email-body')" class="bg-[#008542] hover:bg-green-700 text-white text-xs font-bold px-4 py-2 rounded-lg flex items-center space-x-1.5 shadow-sm">
+                                            <i data-lucide="copy" class="w-3.5 h-3.5" stroke-width="1.5"></i>
+                                            <span>Copiar Corpo</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 🔗 NOVO: CONECTOR DE INTEGRAÇÃO MICROSOFT 365 COPILOT -->
+                        <div class="bg-gradient-to-r from-slate-900 to-slate-950 text-white rounded-xl p-5 border border-slate-800 shadow-lg">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex items-center space-x-2.5">
+                                    <!-- Logotipo estilizado de Copilot -->
+                                    <div class="bg-gradient-to-tr from-sky-400 via-indigo-500 to-purple-600 p-1.5 rounded-lg flex items-center justify-center">
+                                        <i data-lucide="orbit" class="w-4 h-4 text-white" stroke-width="2"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-sm font-bold uppercase tracking-wider text-slate-200">
+                                            Conexão Microsoft 365 Copilot
+                                        </h3>
+                                        <p class="text-[10px] text-slate-400">Automatize seus disparos de e-mails usando a IA corporativa do seu Microsoft 365.</p>
+                                    </div>
+                                </div>
+                                <span class="bg-sky-500/10 text-sky-400 text-[10px] font-bold px-2 py-0.5 rounded-full border border-sky-500/20 uppercase">M365 Conectado</span>
+                            </div>
+                            
+                            <p class="text-xs text-slate-300 mb-4">Gere e copie um prompt estruturado otimizado para colar no **Copilot M365** (no Teams, Outlook ou Edge corporativo) e realizar suas tarefas de forma unificada.</p>
+                            
+                            <div class="bg-slate-800/80 p-3 rounded-lg border border-slate-700 mb-4 font-mono text-[10px] leading-relaxed text-slate-300 select-all" id="copilot-prompt-preview">
+                                Selecione filtros de concessão ou digite um comunicado para formular o prompt da IA do Copilot.
+                            </div>
+
+                            <div class="flex flex-col sm:flex-row gap-2">
+                                <button onclick="copyCopilotPrompt()" class="bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-600 hover:to-indigo-700 text-white font-bold text-xs py-2 px-4 rounded-lg shadow transition-all flex items-center justify-center space-x-1.5">
+                                    <i data-lucide="copy" class="w-3.5 h-3.5" stroke-width="1.5"></i>
+                                    <span>Copiar Prompt do Copilot</span>
+                                </button>
+                                <a href="https://copilot.microsoft.com" target="_blank" class="bg-slate-800 hover:bg-slate-750 text-slate-200 border border-slate-700 font-bold text-xs py-2 px-4 rounded-lg shadow transition-all flex items-center justify-center space-x-1.5">
+                                    <i data-lucide="external-link" class="w-3.5 h-3.5" stroke-width="1.5"></i>
+                                    <span>Abrir Copilot Web</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tabela de Resultados Filtrados -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                        <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+                            <div>
+                                <h2 class="text-lg font-bold text-slate-800 flex items-center">
+                                    <i data-lucide="list" class="w-5 h-5 mr-2 text-[#008542]" stroke-width="1.5"></i>
+                                    Lista de Contatos do Segmento
+                                </h2>
+                                <p class="text-xs text-slate-400">Total de contatos válidos correspondendo à triagem atual.</p>
+                            </div>
+                            <span class="text-xs bg-slate-100 text-slate-700 font-bold px-3 py-1.5 rounded-full flex items-center space-x-1" id="table-counter">
+                                <i data-lucide="users-2" class="w-3.5 h-3.5 mr-1 text-slate-500" stroke-width="1.5"></i>
+                                <span>Mostrando 0 de 0</span>
+                            </span>
+                        </div>
+                        <div class="overflow-x-auto max-h-[500px]">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-50 text-slate-600 text-xs font-bold uppercase tracking-wider border-b border-slate-100">
+                                        <th class="py-3.5 px-4">Concessão</th>
+                                        <th class="py-3.5 px-4">Área</th>
+                                        <th class="py-3.5 px-4">Função</th>
+                                        <th class="py-3.5 px-4">Nome</th>
+                                        <th class="py-3.5 px-4">E-mail</th>
+                                        <th class="py-3.5 px-4">Gestor</th>
+                                        <th class="py-3.5 px-4 text-center">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-results" class="divide-y divide-slate-100 text-sm">
+                                    <!-- Preenchido dinamicamente -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: IMPORTAÇÃO EM LOTE -->
+        <section id="tab-content-lote" class="tab-pane hidden space-y-6">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                <h2 class="text-xl font-bold text-[#008542] mb-2 flex items-center">
+                    <i data-lucide="file-up" class="w-6 h-6 mr-2" stroke-width="1.5"></i>
+                    Carga e Parser Automático em Lote (Documentos)
+                </h2>
+                <p class="text-sm text-slate-500 mb-6">Arraste arquivos com tabelas de contatos ou relatórios operacionais brutos (.csv, .txt). O Gemini lerá o documento para cadastrar os contatos e, com a inteligência contextual, <strong>formulará a mala direta correspondente de uma vez só!</strong></p>
+
+                <!-- Área de Drop do Arquivo -->
+                <div id="drop-zone" class="border-2 border-dashed border-slate-300 rounded-2xl p-8 text-center hover:border-[#008542] hover:bg-green-50/20 transition-all cursor-pointer relative mb-6">
+                    <input type="file" id="file-uploader" class="absolute inset-0 opacity-0 cursor-pointer" accept=".csv,.txt,.xlsx,.xls,.tsv,.json,.docx,.pdf,.eml" onchange="handleFileSelect(event)">
+                    <div class="flex flex-col items-center space-y-3">
+                        <div class="bg-slate-100 p-4 rounded-full text-slate-500" id="drop-icon">
+                            <i data-lucide="upload-cloud" class="w-10 h-10" stroke-width="1.5"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-semibold text-slate-700">Arraste e solte o seu arquivo ou relatório aqui, ou <span class="text-[#008542] hover:underline">procure no computador</span></p>
+                            <p class="text-xs text-slate-400 mt-1">Formatos suportados: .XLSX, .XLS, .CSV, .TXT, .DOCX, .PDF, .EML ou relatórios corporativos</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Input de Bloco Manual alternativo -->
+                <div class="space-y-2">
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider">Ou cole os dados em massa em formato texto:</label>
+                    <textarea id="ai-batch-raw-text" class="w-full h-32 p-4 text-xs font-mono border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#008542] text-slate-700 resize-none" placeholder="Ex: Bruna Andrade | GEN | Ponto Focal | Imigrantes | Bruna.S.Andrade@ecovias.com.br | Wagner da Silva&#10;Wagner da Silva | GEN | Integrante | Imigrantes | Wagner.Silva@ecovias.com.br | Wagner da Silva"></textarea>
+                </div>
+
+                <!-- Configuração: Formular Tudo Juntos -->
+                <div class="bg-green-50/30 p-4 rounded-xl border border-green-100 flex items-center justify-between mt-4">
+                    <div class="flex items-center space-x-2">
+                        <i data-lucide="sparkles" class="w-5 h-5 text-[#008542]" stroke-width="1.5"></i>
+                        <div>
+                            <span class="text-xs font-bold text-[#008542] block">Formular Mala Direta de Uma Vez Só</span>
+                            <span class="text-[11px] text-slate-500">Ao ativar, o Gemini analisará o documento para identificar a pauta principal e redigir o e-mail automaticamente.</span>
+                        </div>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="ai-batch-formulate-together" checked class="sr-only peer">
+                        <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#008542]"></div>
+                    </label>
+                </div>
+
+                <!-- Botão de Processamento em Lote -->
+                <div class="mt-4 flex justify-end">
+                    <button id="btn-process-batch-ai" onclick="parseBatchWithAI()" class="bg-[#008542] hover:bg-green-700 text-white font-bold text-sm px-6 py-3 rounded-xl shadow-md transition-all flex items-center space-x-1.5">
+                        <i data-lucide="zap" class="w-4 h-4" stroke-width="1.5"></i>
+                        <span>Processar e Formular com Gemini</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tabela de Auditoria e Aprovação pré-banco -->
+            <div id="ai-batch-results-container" class="hidden bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="p-6 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-800 flex items-center">
+                            <i data-lucide="check-square" class="w-5 h-5 mr-2 text-emerald-600" stroke-width="1.5"></i>
+                            Contatos Identificados para Integração
+                        </h3>
+                        <p class="text-xs text-slate-400">Verifique os dados interpretados pela IA antes de salvar em definitivo.</p>
+                    </div>
+                    <div class="flex space-x-2 w-full sm:w-auto">
+                        <button onclick="discardBatch()" class="text-xs font-bold text-rose-600 hover:bg-rose-50 px-3 py-2 rounded-xl transition-all">Descartar Tudo</button>
+                        <button onclick="commitBatchToDatabase()" class="bg-[#008542] hover:bg-green-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-md transition-all flex items-center space-x-1">
+                            <i data-lucide="import" class="w-3.5 h-3.5" stroke-width="1.5"></i>
+                            <span>Aprovar e Integrar Registros</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="overflow-x-auto max-h-[400px]">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 text-slate-600 text-xs font-bold uppercase tracking-wider border-b border-slate-100">
+                                <th class="py-3 px-4">Concessão</th>
+                                <th class="py-3 px-4">Área</th>
+                                <th class="py-3 px-4">Função</th>
+                                <th class="py-3 px-4">Nome</th>
+                                <th class="py-3 px-4">E-mail</th>
+                                <th class="py-3 px-4">Gestor</th>
+                                <th class="py-3 px-4">Observação</th>
+                                <th class="py-3 px-4">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="batch-results-rows" class="divide-y divide-slate-100 text-sm">
+                            <!-- Inserido dinamicamente após processamento de lote -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 3: REPOSITÓRIO CENTRAL TBCONTATOS -->
+        <section id="tab-content-base" class="tab-pane hidden">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 mb-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-[#008542] flex items-center">
+                            <i data-lucide="database" class="w-6 h-6 mr-2 text-[#008542]" stroke-width="1.5"></i>
+                            tbContatos (Governança Corporativa)
+                        </h2>
+                        <p class="text-sm text-slate-500">Mantenha a base de dados organizada e livre de inconsistências.</p>
+                    </div>
+                    
+                    <!-- Botões de Ação da Base -->
+                    <div class="flex flex-wrap gap-2 w-full sm:w-auto">
+                        <button onclick="openAddModal()" class="bg-[#008542] hover:bg-green-700 text-white font-bold text-sm px-4 py-2.5 rounded-xl shadow-md transition-all flex items-center space-x-1.5">
+                            <i data-lucide="plus" class="w-4 h-4" stroke-width="1.5"></i>
+                            <span>Novo Contato</span>
+                        </button>
+                        <button onclick="exportToCSV()" class="bg-[#008542] hover:bg-green-700 text-white font-bold text-sm px-4 py-2.5 rounded-xl shadow-md transition-all flex items-center space-x-1.5">
+                            <i data-lucide="download" class="w-4 h-4" stroke-width="1.5"></i>
+                            <span>Baixar CSV</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Barra de Busca Global -->
+                <div class="mb-6 relative">
+                    <input type="text" id="search-global" oninput="filterBaseTable()" class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-600 text-sm text-slate-700" placeholder="Pesquise por qualquer nome, e-mail, gestor, área ou concessão...">
+                    <i data-lucide="search" class="w-5 h-5 text-slate-400 absolute left-3.5 top-3.5" stroke-width="1.5"></i>
+                </div>
+
+                <!-- Tabela de Controle -->
+                <div class="overflow-x-auto rounded-xl border border-slate-200">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-100 text-slate-600 text-xs font-bold uppercase tracking-wider border-b border-slate-200">
+                                <th class="py-3 px-4">ID</th>
+                                <th class="py-3 px-4">Concessão</th>
+                                <th class="py-3 px-4">Área</th>
+                                <th class="py-3 px-4">Função</th>
+                                <th class="py-3 px-4">Nome</th>
+                                <th class="py-3 px-4">E-mail</th>
+                                <th class="py-3 px-4">Gestor</th>
+                                <th class="py-3 px-4">Observação</th>
+                                <th class="py-3 px-4 text-center">Status</th>
+                                <th class="py-3 px-4 text-center">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="base-table-rows" class="divide-y divide-slate-100 text-sm">
+                            <!-- Preenchido dinamicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 4: DASHBOARD & AUDITORIA -->
+        <section id="tab-content-dashboard" class="tab-pane hidden space-y-8">
+            
+            <!-- ✨ RECURSO DE IA: AUDITORIA DE GOVERNANÇA E INSIGHTS DE DADOS -->
+            <div class="bg-slate-900 text-white p-6 rounded-2xl shadow-xl border border-slate-800">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
+                    <div class="flex items-center space-x-3">
+                        <span class="text-2xl">✨</span>
+                        <div>
+                            <h2 class="text-lg font-bold tracking-wide flex items-center">
+                                <i data-lucide="shield-check" class="w-5 h-5 mr-2 text-[#008542]" stroke-width="1.5"></i>
+                                Auditoria & Diagnóstico de Governança por IA
+                            </h2>
+                            <p class="text-xs text-slate-400">Analise possíveis fraquezas e canais de comunicação vazios em toda a cadeia da EcoRodovias com IA.</p>
+                        </div>
+                    </div>
+                    <button id="btn-run-audit-ai" onclick="runGovernanceAudit()" class="bg-[#008542] hover:bg-green-700 text-white font-bold text-xs py-2.5 px-5 rounded-xl shadow-lg transition-all flex items-center space-x-1.5">
+                        <i data-lucide="activity" class="w-4 h-4" stroke-width="1.5"></i>
+                        <span>Emitir Relatório com Gemini</span>
+                    </button>
+                </div>
+
+                <!-- Box do Diagnóstico da IA -->
+                <div id="ai-audit-output" class="hidden bg-slate-800 p-5 rounded-xl border border-slate-700 text-sm leading-relaxed text-slate-300 max-h-[300px] overflow-y-auto font-sans">
+                    <!-- Gerado dinamicamente via LLM -->
+                </div>
+            </div>
+
+            <!-- Painel de Integridade e Saúde Física dos Dados -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                <h3 class="font-bold text-slate-800 mb-4 flex items-center">
+                    <i data-lucide="heart-pulse" class="w-5 h-5 mr-2 text-rose-600" stroke-width="1.5"></i>
+                    Diagnóstico Rápido de Higienização de Dados (Data Health)
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div id="health-card-emails" class="p-4 rounded-xl border border-slate-100 bg-slate-50 flex items-center justify-between cursor-pointer hover:bg-slate-100/70 transition-all">
+                        <div class="flex items-center space-x-3">
+                            <div class="p-2 rounded-lg bg-amber-50 text-amber-600">
+                                <i data-lucide="mail-warning" class="w-5 h-5" stroke-width="1.5"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-semibold text-slate-500 uppercase">E-mails em Branco</h4>
+                                <p class="text-lg font-bold text-slate-800" id="health-empty-emails">0</p>
+                            </div>
+                        </div>
+                        <i data-lucide="arrow-right" class="w-4 h-4 text-slate-400" stroke-width="1.5"></i>
+                    </div>
+                    <div id="health-card-managers" class="p-4 rounded-xl border border-slate-100 bg-slate-50 flex items-center justify-between cursor-pointer hover:bg-slate-100/70 transition-all">
+                        <div class="flex items-center space-x-3">
+                            <div class="p-2 rounded-lg bg-orange-50 text-[#FF9E1B]">
+                                <i data-lucide="user-x" class="w-5 h-5" stroke-width="1.5"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-semibold text-slate-500 uppercase">Sem Gestor Definido</h4>
+                                <p class="text-lg font-bold text-slate-800" id="health-empty-managers">0</p>
+                            </div>
+                        </div>
+                        <i data-lucide="arrow-right" class="w-4 h-4 text-slate-400" stroke-width="1.5"></i>
+                    </div>
+                    <div id="health-card-inactive" class="p-4 rounded-xl border border-slate-100 bg-slate-50 flex items-center justify-between cursor-pointer hover:bg-slate-100/70 transition-all">
+                        <div class="flex items-center space-x-3">
+                            <div class="p-2 rounded-lg bg-rose-50 text-rose-600">
+                                <i data-lucide="user-cog" class="w-5 h-5" stroke-width="1.5"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-semibold text-slate-500 uppercase">Inativos ou Substituições</h4>
+                                <p class="text-lg font-bold text-slate-800" id="health-inactive-contacts">0</p>
+                            </div>
+                        </div>
+                        <i data-lucide="arrow-right" class="w-4 h-4 text-slate-400" stroke-width="1.5"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cards de KPIs (Migrados para tons Verdes e Laranjas institucionais EcoRodovias) -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Card 1 -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex items-center space-x-4">
+                    <div class="p-3.5 rounded-xl bg-green-50 text-[#008542] flex items-center justify-center">
+                        <i data-lucide="users" class="w-6 h-6" stroke-width="1.5"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs font-semibold text-slate-500 uppercase">Total de Contatos</p>
+                        <h3 class="text-2xl font-bold text-[#008542]" id="kpi-contacts">0</h3>
+                    </div>
+                </div>
+                <!-- Card 2 -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex items-center space-x-4">
+                    <div class="p-3.5 rounded-xl bg-orange-50 text-[#FF9E1B] flex items-center justify-center">
+                        <i data-lucide="milestone" class="w-6 h-6" stroke-width="1.5"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs font-semibold text-slate-500 uppercase">Concessões</p>
+                        <h3 class="text-2xl font-bold text-[#008542]" id="kpi-concessions">0</h3>
+                    </div>
+                </div>
+                <!-- Card 3 -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex items-center space-x-4">
+                    <div class="p-3.5 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                        <i data-lucide="layout-grid" class="w-6 h-6" stroke-width="1.5"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs font-semibold text-slate-500 uppercase">Áreas</p>
+                        <h3 class="text-2xl font-bold text-[#008542]" id="kpi-areas">0</h3>
+                    </div>
+                </div>
+                <!-- Card 4 -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex items-center space-x-4">
+                    <div class="p-3.5 rounded-xl bg-green-50 text-emerald-700 flex items-center justify-center">
+                        <i data-lucide="mail" class="w-6 h-6" stroke-width="1.5"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs font-semibold text-slate-500 uppercase">E-mails Válidos</p>
+                        <h3 class="text-2xl font-bold text-[#008542]" id="kpi-emails">0</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gráficos de Ocupação -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Gráfico 1 -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h3 class="font-bold text-slate-800 mb-4 flex items-center">
+                        <i data-lucide="bar-chart-2" class="w-5 h-5 mr-2 text-[#008542]" stroke-width="1.5"></i>
+                        Total de Contatos por Concessão
+                    </h3>
+                    <div class="h-64">
+                        <canvas id="chart-concession"></canvas>
+                    </div>
+                </div>
+                <!-- Gráfico 2 -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h3 class="font-bold text-slate-800 mb-4 flex items-center">
+                        <i data-lucide="bar-chart-horizontal" class="w-5 h-5 mr-2 text-[#FF9E1B]" stroke-width="1.5"></i>
+                        Distribuição por Área de Atuação
+                    </h3>
+                    <div class="h-64">
+                        <canvas id="chart-area"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 5: GUIA DE INTEGRAÇÃO POWER BI -->
+        <section id="tab-content-powerbi" class="tab-pane hidden">
+            <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 space-y-6">
+                <div class="flex items-center space-x-3 pb-4 border-b border-slate-100">
+                    <div class="bg-green-50 p-2.5 rounded-xl text-[#008542]">
+                        <i data-lucide="file-bar-chart-2" class="w-6 h-6" stroke-width="1.5"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-bold text-[#008542]">Conectando a base tbContatos ao Power BI</h2>
+                        <p class="text-slate-500">Transforme esta base de e-mails em dashboards executivos no Power BI de forma fácil e rápida.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 my-6">
+                    <div class="p-5 bg-slate-50 rounded-xl border border-slate-200">
+                        <span class="text-xl font-bold text-[#008542] block mb-2 flex items-center">
+                            <i data-lucide="arrow-down-to-line" class="w-5 h-5 mr-1.5 text-[#FF9E1B]" stroke-width="1.5"></i>
+                            <span>01</span>
+                        </span>
+                        <h4 class="font-bold mb-1">Exportar Base</h4>
+                        <p class="text-xs text-slate-500">Vá na aba "Base de Dados" e clique em "Baixar CSV" para obter os dados mais atualizados em formato tabular estruturado.</p>
+                    </div>
+                    <div class="p-5 bg-slate-50 rounded-xl border border-slate-200">
+                        <span class="text-xl font-bold text-[#008542] block mb-2 flex items-center">
+                            <i data-lucide="file-spreadsheet" class="w-5 h-5 mr-1.5 text-[#FF9E1B]" stroke-width="1.5"></i>
+                            <span>02</span>
+                        </span>
+                        <h4 class="font-bold mb-1">Importar Dados</h4>
+                        <p class="text-xs text-slate-500">Abra o Power BI Desktop, vá em <strong>Obter Dados > Texto/CSV</strong>, escolha o arquivo baixado e certifique-se de usar a codificação <strong>UTF-8</strong>.</p>
+                    </div>
+                    <div class="p-5 bg-slate-50 rounded-xl border border-slate-200">
+                        <span class="text-xl font-bold text-[#008542] block mb-2 flex items-center">
+                            <i data-lucide="network" class="w-5 h-5 mr-1.5 text-[#FF9E1B]" stroke-width="1.5"></i>
+                            <span>03</span>
+                        </span>
+                        <h4 class="font-bold mb-1">Estruturar Modelo</h4>
+                        <p class="text-xs text-slate-500">Garanta as tipagens de texto corretas nas colunas de Concessão, Área, Função e Status no painel do Power Query.</p>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <h3 class="text-lg font-bold text-slate-800 flex items-center">
+                        <i data-lucide="code" class="w-5 h-5 mr-2 text-[#008542]" stroke-width="1.5"></i>
+                        Principais Fórmulas DAX Recomendadas
+                    </h3>
+                    
+                    <div class="bg-slate-900 text-slate-200 p-4 rounded-xl font-mono text-xs space-y-3">
+                        <div>
+                            <span class="text-amber-400 block">// Medida para Contagem de Contatos Ativos</span>
+                            Contatos Ativos = CALCULATE(COUNTA('tbContatos'[ID]), 'tbContatos'[Status] = "Ativo")
+                        </div>
+                        <div>
+                            <span class="text-amber-400 block">// Medida para Cobertura de E-mails</span>
+                            Emails Cadastrados = CALCULATE(COUNTA('tbContatos'[E-mail]), NOT(ISBLANK('tbContatos'[E-mail])))
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FORM MODAL: ADICIONAR / EDITAR CONTATO -->
+    <div id="contact-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-slate-200 overflow-hidden transition-all transform scale-95" id="modal-container">
+            <div class="bg-[#008542] text-white p-5 flex justify-between items-center">
+                <h3 id="modal-title" class="font-bold text-lg flex items-center">
+                    <i data-lucide="user-plus" class="w-5 h-5 mr-2" stroke-width="1.5"></i>
+                    <span>Novo Contato</span>
+                </h3>
+                <button onclick="closeModal()" class="text-slate-300 hover:text-white">
+                    <i data-lucide="x" class="w-6 h-6" stroke-width="1.5"></i>
+                </button>
+            </div>
+            
+            <!-- ✨ RECURSO DE IA: PARSER DE ASSINATURA E IMPORTAÇÃO INTELIGENTE -->
+            <div class="bg-slate-50 p-4 border-b border-slate-200">
+                <details class="group">
+                    <summary class="list-none flex justify-between items-center font-bold text-xs text-indigo-900 cursor-pointer select-none">
+                        <span class="flex items-center space-x-2">
+                            <span>✨</span>
+                            <span>Preenchimento Rápido com IA (Opcional)</span>
+                        </span>
+                        <i data-lucide="chevron-down" class="w-4 h-4 transition-transform group-open:rotate-180" stroke-width="1.5"></i>
+                    </summary>
+                    <div class="mt-3 space-y-2">
+                        <p class="text-[11px] text-slate-500 leading-normal">Cole qualquer texto abaixo (como uma assinatura de e-mail ou anotação de chat) e a IA mapeará os campos do formulário para você de forma automaticamente!</p>
+                        <textarea id="ai-import-raw-text" class="w-full h-20 p-2 text-xs border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 text-slate-700 resize-none" placeholder="Ex: Bruna Andrade - Ponto Focal da GEN na Imigrantes (E-mail: Bruna.S.Andrade@ecovias.com.br) gerenciada por Wagner da Silva. Ela está Ativa."></textarea>
+                        <button type="button" id="btn-import-ai" onclick="parseContactWithAI()" class="w-full bg-[#008542] hover:bg-green-700 text-white font-bold text-xs py-1.5 px-3 rounded-lg shadow transition-all flex items-center justify-center space-x-1.5">
+                            <i data-lucide="sparkles" class="w-4 h-4" stroke-width="1.5"></i>
+                            <span>Preencher Formulário com Gemini</span>
+                        </button>
+                    </div>
+                </details>
+            </div>
+
+            <form id="contact-form" onsubmit="saveContact(event)" class="p-6 space-y-4">
+                <input type="hidden" id="edit-id">
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Concessão</label>
+                        <select id="modal-concessao" required class="w-full border border-slate-200 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-600 bg-white">
+                            <!-- Inserido dinamicamente -->
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Área / Setor</label>
+                        <select id="modal-area" required class="w-full border border-slate-200 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-600 bg-white">
+                            <!-- Inserido dinamicamente -->
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Função</label>
+                        <select id="modal-funcao" required class="w-full border border-slate-200 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-600 bg-white">
+                            <!-- Inserido dinamicamente -->
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Status</label>
+                        <select id="modal-status" required class="w-full border border-slate-200 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-600 bg-white">
+                            <!-- Inserido dinamicamente -->
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Nome Completo</label>
+                    <input type="text" id="modal-nome" required class="w-full border border-slate-200 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-600" placeholder="Insira o nome do contato">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">E-mail Corporativo</label>
+                    <input type="email" id="modal-email" class="w-full border border-slate-200 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-600" placeholder="exemplo@ecovias.com.br">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Gestor Responsável</label>
+                    <input type="text" id="modal-gestor" class="w-full border border-slate-200 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-600" placeholder="Nome do Gestor">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Observações / Anotações</label>
+                    <input type="text" id="modal-observacao" class="w-full border border-slate-200 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-600" placeholder="Algum detalhe adicional?">
+                </div>
+
+                <div class="flex justify-end space-x-2 pt-4 border-t border-slate-100">
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 border border-slate-200 text-slate-500 hover:bg-slate-50 font-semibold text-sm rounded-lg">Cancelar</button>
+                    <button type="submit" class="px-5 py-2 bg-[#008542] hover:bg-[#0b3c25] text-white font-semibold text-sm rounded-lg">Salvar Contato</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- CONFIRMATION MODAL (Substituto do confirm() nativo) -->
+    <div id="confirm-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl p-6 border border-slate-200 transition-all transform scale-95" id="confirm-modal-container">
+            <h3 class="font-bold text-lg text-slate-800 mb-2">Excluir Registro</h3>
+            <p class="text-sm text-slate-500 mb-6" id="confirm-modal-message">Tem certeza de que deseja remover permanentemente este contato?</p>
+            <div class="flex justify-end space-x-2">
+                <button onclick="closeConfirmModal()" class="px-4 py-2 border border-slate-200 text-slate-500 hover:bg-slate-50 font-semibold text-sm rounded-lg">Cancelar</button>
+                <button id="confirm-modal-btn" class="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white font-semibold text-sm rounded-lg flex items-center space-x-1">
+                    <i data-lucide="trash-2" class="w-4 h-4" stroke-width="1.5"></i>
+                    <span>Excluir</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script Principal -->
+    <script>
+        // Token e Configurações da API do Gemini
+        const apiKey = ""; // Chave automática do ambiente sandbox
+
+        // Função Genérica para Chamadas da API Gemini com Tratamento de Erros e Backoff Exponencial
+        async function callGeminiAPI(payload, systemInstruction = null) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            let retries = 0;
+            const maxRetries = 5;
+            let delay = 1000;
+
+            const body = {
+                contents: payload.contents
+            };
+            if (systemInstruction) {
+                body.systemInstruction = {
+                    parts: [{ text: systemInstruction }]
+                };
+            }
+            if (payload.generationConfig) {
+                body.generationConfig = payload.generationConfig;
+            }
+
+            while (retries < maxRetries) {
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(body)
+                    });
+                    if (response.ok) {
+                        const data = await response.json();
+                        return data;
+                    }
+                } catch (error) {
+                    // Falha silenciosa para retries
+                }
+                retries++;
+                if (retries < maxRetries) {
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    delay *= 2; // Dobro do tempo
+                }
+            }
+            throw new Error("Não foi possível conectar à Inteligência Artificial da Gemini. Verifique sua conexão e tente novamente mais tarde.");
+        }
+
+        // Base de Dados Local Inicializado com Base de Dados Integral e Corrigida
+        let contacts = [
+            { id: "GCC0001", concession: "Imigrantes", area: "GEN", function: "Ponto Focal", name: "Bruna Silva de Andrade", email: "Bruna.S.Andrade@ecovias.com.br", manager: "Wagner da Silva", observation: "", status: "Ativo" },
+            { id: "GCC0002", concession: "Imigrantes", area: "GEN", function: "Integrante", name: "Wagner da Silva", email: "Wagner.Silva@ecovias.com.br", manager: "Wagner da Silva", observation: "", status: "Ativo" },
+            { id: "GCC0003", concession: "Imigrantes", area: "GEN", function: "Integrante", name: "Renan Gomes Magrino", email: "renan.magrino@ecovias.com.br", manager: "Wagner da Silva", observation: "", status: "Ativo" },
+            { id: "GCC0004", concession: "Imigrantes", area: "GEN", function: "Integrante", name: "Thiago M. Santos", email: "thiago.m.santos@ecovias.com.br", manager: "Bruna Silva de Andrade", observation: "", status: "Ativo" },
+            { id: "GCC0005", concession: "Imigrantes", area: "GAU", function: "Ponto Focal", name: "Daniele Rolim", email: "Daniele.Rolim@ecovias.com.br", manager: "Ghislaine Lury Testoni", observation: "", status: "Ativo" },
+            { id: "GCC0006", concession: "Imigrantes", area: "GAU", function: "Grupo de E-mail", name: "Correspondências GAU", email: "correspondenciasgau@ecovias.com.br", manager: "Ghislaine Lury Testoni", observation: "Caixa compartilhada", status: "Ativo" },
+            { id: "GCC0007", concession: "Imigrantes", area: "GAU", function: "Integrante", name: "Gabriel Encarnação", email: "gabriel.encarnacao@ecovias.com.br", manager: "Ghislaine Lury Testoni", observation: "", status: "Ativo" },
+            { id: "GCC0008", concession: "Imigrantes", area: "CSU", function: "Ponto Focal", name: "T_Luana Ferreira Vieira", email: "T_Luana.Vieira@ecovias.com.br", manager: "Alice Maria Costa Maia Silveira", observation: "", status: "Ativo" },
+            { id: "GCC0009", concession: "Imigrantes", area: "CSU", function: "Integrante", name: "Luan Vinicius do Nascimento Colucci", email: "Luan.Colucci@ecovias.com.br", manager: "Alice Maria Costa Maia Silveira", observation: "", status: "Ativo" },
+            { id: "GCC0010", concession: "Imigrantes", area: "CSU", function: "Integrante", name: "Jefferson Cleber da Silva Junior", email: "jefferson.junior@ecovias.com.br", manager: "Alice Maria Costa Maia Silveira", observation: "", status: "Ativo" },
+            { id: "GCC0011", concession: "Imigrantes", area: "CSU", function: "Integrante", name: "Alice Maria Costa Maia Silveira", email: "alice.maia@ecovias.com.br", manager: "Alice Maria Costa Maia Silveira", observation: "", status: "Ativo" },
+            { id: "GCC0012", concession: "Imigrantes", area: "RH", function: "Ponto Focal", name: "Marcela Lima Barbery", email: "marcela.barbery@ecovias.com.br", manager: "Rafael Souza da Silva", observation: "", status: "Ativo" },
+            { id: "GCC0013", concession: "Imigrantes", area: "RH", function: "Integrante", name: "Rafael Souza da Silva", email: "rafael.silva@ecovias.com.br", manager: "Rafael Souza da Silva", observation: "Gestor da Área", status: "Ativo" },
+            { id: "GCC0014", concession: "Imigrantes", area: "AJL", function: "Ponto Focal", name: "Vinicius da Silva Faria", email: "vinicius.faria@ecovias.com.br", manager: "Julianna de Freitas Silva", observation: "", status: "Ativo" },
+            { id: "GCC0015", concession: "Imigrantes", area: "AJL", function: "Integrante", name: "Nayara das Merces Oliveira", email: "nayara.oliveira@ecovias.com.br", manager: "Julianna de Freitas Silva", observation: "", status: "Ativo" },
+            { id: "GCC0016", concession: "Imigrantes", area: "AJL", function: "Integrante", name: "Laine Barros Xavier", email: "laine.xavier@ecovias.com.br", manager: "Julianna de Freitas Silva", observation: "", status: "Ativo" },
+            { id: "GCC0017", concession: "Imigrantes", area: "AJL", function: "Integrante", name: "Marcela Cioccia Neves", email: "marcela.neves@ecovias.com.br", manager: "Julianna de Freitas Silva", observation: "", status: "Ativo" },
+            { id: "GCC0018", concession: "Imigrantes", area: "AJL", function: "Grupo de E-mail", name: "Jurídico EVI/EVLP", email: "juridico.evi.evlp@ecovias.com.br", manager: "Julianna de Freitas Silva", observation: "Caixa compartilhada", status: "Ativo" },
+            { id: "GCC0019", concession: "Imigrantes", area: "DTC", function: "Ponto Focal", name: "Milene Feriani", email: "milene.feriani@ecovias.com.br", manager: "Ricardo Gimenes", observation: "", status: "Ativo" },
+            { id: "GCC0020", concession: "Imigrantes", area: "DTC", function: "Integrante", name: "João Paulos da Silva", email: "joao.silva@ecovias.com.br", manager: "Ricardo Gimenes", observation: "", status: "Ativo" },
+            { id: "GCC0021", concession: "Imigrantes", area: "DTC", function: "Integrante", name: "Daniel Cirilo", email: "daniel.cirilo@ecovias.com.br", manager: "Ricardo Gimenes", observation: "", status: "Ativo" },
+            { id: "GCC0022", concession: "Imigrantes", area: "DTC", function: "Integrante", name: "William Hartwig", email: "william.hartwig@ecovias.com.br", manager: "Ricardo Gimenes", observation: "", status: "Ativo" },
+
+            // Leste Paulista
+            { id: "GCC0023", concession: "Leste Paulista", area: "GEN", function: "Ponto Focal", name: "Wagner da Silva", email: "Wagner.Silva@ecovias.com.br", manager: "Bruna Silva de Andrade", observation: "", status: "Ativo" },
+            { id: "GCC0024", concession: "Leste Paulista", area: "GEN", function: "Especialista", name: "Lara Leandro Farias", email: "Lara.Farias@ecovias.com.br", manager: "Bruna Silva de Andrade", observation: "ARTESP - Pavimento", status: "Ativo" },
+            { id: "GCC0025", concession: "Leste Paulista", area: "GEN", function: "Integrante", name: "Bruna Silva de Andrade", email: "Bruna.S.Andrade@ecovias.com.br", manager: "Wagner da Silva", observation: "", status: "Ativo" },
+            { id: "GCC0026", concession: "Leste Paulista", area: "GEN", function: "Integrante", name: "Thiago M. Santos", email: "thiago.m.santos@ecovias.com.br", manager: "Bruna Silva de Andrade", observation: "", status: "Ativo" },
+            { id: "GCC0027", concession: "Leste Paulista", area: "GAU", function: "Ponto Focal", name: "Daniele Rolim", email: "Daniele.Rolim@ecovias.com.br", manager: "Ghislaine Lury Testoni", observation: "", status: "Ativo" },
+            { id: "GCC0028", concession: "Leste Paulista", area: "GAU", function: "Grupo de E-mail", name: "GAU Ecopistas", email: "gau.ecopistas@ecovias.com.br", manager: "Ghislaine Lury Testoni", observation: "Caixa compartilhada", status: "Ativo" },
+            { id: "GCC0029", concession: "Leste Paulista", area: "GAU", function: "Integrante", name: "Gabriel Encarnação", email: "gabriel.encarnacao@ecovias.com.br", manager: "Ghislaine Lury Testoni", observation: "", status: "Ativo" },
+            { id: "GCC0030", concession: "Leste Paulista", area: "CSU", function: "Ponto Focal", name: "T_Luana Ferreira Vieira", email: "T_Luana.Vieira@ecovias.com.br", manager: "Alice Maria Costa Maia Silveira", observation: "", status: "Ativo" },
+            { id: "GCC0031", concession: "Leste Paulista", area: "CSU", function: "Integrante", name: "Luan Vinicius do Nascimento Colucci", email: "Luan.Colucci@ecovias.com.br", manager: "Alice Maria Costa Maia Silveira", observation: "", status: "Ativo" },
+            { id: "GCC0032", concession: "Leste Paulista", area: "CSU", function: "Integrante", name: "Alice Maria Costa Maia Silveira", email: "alice.maia@ecovias.com.br", manager: "Alice Maria Costa Maia Silveira", observation: "", status: "Ativo" },
+            { id: "GCC0033", concession: "Leste Paulista", area: "RH", function: "Ponto Focal", name: "Marcela Lima Barbery", email: "marcela.barbery@ecovias.com.br", manager: "Rafael Souza da Silva", observation: "", status: "Ativo" },
+            { id: "GCC0034", concession: "Leste Paulista", area: "RH", function: "Integrante", name: "Rafael Souza da Silva", email: "rafael.silva@ecovias.com.br", manager: "Rafael Souza da Silva", observation: "Gestor da Área", status: "Ativo" },
+            { id: "GCC0035", concession: "Leste Paulista", area: "DTC", function: "Ponto Focal", name: "Maria Shirley", email: "maria.shirley@ecovias.com.br", manager: "Ricardo Gimenes", observation: "", status: "Ativo" },
+            { id: "GCC0036", concession: "Leste Paulista", area: "DTC", function: "Integrante", name: "João Paulos da Silva", email: "joao.silva@ecovias.com.br", manager: "Ricardo Gimenes", observation: "", status: "Ativo" },
+            { id: "GCC0037", concession: "Leste Paulista", area: "DTC", function: "Integrante", name: "Daniel Cirilo", email: "daniel.cirilo@ecovias.com.br", manager: "Ricardo Gimenes", observation: "", status: "Ativo" },
+            { id: "GCC0038", concession: "Leste Paulista", area: "DTC", function: "Integrante", name: "William Hartwig", email: "william.hartwig@ecovias.com.br", manager: "Ricardo Gimenes", observation: "", status: "Ativo" },
+
+            // Econoroeste
+            { id: "GCC0039", concession: "Econoroeste", area: "GEN", function: "Ponto Focal", name: "Guilherme Ferreira dos Santos", email: "guilherme.santos@econoroeste.com.br", manager: "Cristiana Mara Magalhaes de Oliveira", observation: "", status: "Ativo" },
+            { id: "GCC0040", concession: "Econoroeste", area: "GEN", function: "Integrante", name: "Marcela de Paula", email: "marcela.paula@econoroeste.com.br", manager: "Cristiana Mara Magalhaes de Oliveira", observation: "", status: "Ativo" },
+            { id: "GCC0041", concession: "Econoroeste", area: "GEN", function: "Integrante", name: "Maria Eduarda Francischini da Silva", email: "maria.silva@econoroeste.com.br", manager: "Cristiana Mara Magalhaes de Oliveira", observation: "", status: "Ativo" },
+            { id: "GCC0042", concession: "Econoroeste", area: "GEN", function: "Integrante", name: "Lucas Fernando dos Santos", email: "lucas.santos@econoroeste.com.br", manager: "Cristiana Mara Magalhaes de Oliveira", observation: "", status: "Ativo" },
+            { id: "GCC0043", concession: "Econoroeste", area: "GEN", function: "Integrante", name: "Sofia Carvalho", email: "T_Sofia.Carvalho@ecovias.com.br", manager: "Cristiana Mara Magalhaes de Oliveira", observation: "", status: "Ativo" },
+            { id: "GCC0044", concession: "Econoroeste", area: "GEN", function: "Integrante", name: "Giovana Rodrigues", email: "T_Giovana.Rodrigues@ecovias.com.br", manager: "Cristiana Mara Magalhaes de Oliveira", observation: "", status: "Ativo" },
+            { id: "GCC0045", concession: "Econoroeste", area: "GEN", function: "Integrante", name: "Leire Souza", email: "T_Leire.Souza@ecovias.com.br", manager: "Cristiana Mara Magalhaes de Oliveira", observation: "", status: "Ativo" },
+            { id: "GCC0046", concession: "Econoroeste", area: "GEN", function: "Integrante", name: "Caroline Placeres", email: "T_Caroline.Placeres@ecovias.com.br", manager: "Cristiana Mara Magalhaes de Oliveira", observation: "", status: "Ativo" },
+            { id: "GCC0047", concession: "Econoroeste", area: "GEN", function: "Integrante", name: "Mikaelly Marcelino", email: "T_Mikaelly.Marcelino@ecovias.com.br", manager: "Cristiana Mara Magalhaes de Oliveira", observation: "", status: "Ativo" },
+            { id: "GCC0048", concession: "Econoroeste", area: "GEN", function: "Integrante", name: "Weverton Teixeira", email: "Weverton.Teixeira@ecovias.com.br", manager: "Cristiana Mara Magalhaes de Oliveira", observation: "", status: "Ativo" },
+            { id: "GCC0049", concession: "Econoroeste", area: "GEN", function: "Integrante", name: "Samuel Ribeiro", email: "t_samuel.ribeiro@ecovias.com.br", manager: "Cristiana Mara Magalhaes de Oliveira", observation: "", status: "Ativo" },
+            { id: "GCC0050", concession: "Econoroeste", area: "GEN", function: "Grupo de E-mail", name: "Faixa de Domínio", email: "faixadedominio@econoroeste.com.br", manager: "Cristiana Mara Magalhaes de Oliveira", observation: "", status: "Ativo" },
+            { id: "GCC0051", concession: "Econoroeste", area: "GEN", function: "Integrante", name: "Ana Durante", email: "T_Ana.Durante@ecovias.com.br", manager: "Cristiana Mara Magalhaes de Oliveira", observation: "", status: "Ativo" },
+            { id: "GCC0052", concession: "Econoroeste", area: "GEN", function: "Integrante", name: "Osmar Jacinto Nogueira Junior", email: "osmar.nogueira@econoroeste.com.br", manager: "Cristiana Mara Magalhaes de Oliveira", observation: "", status: "Ativo" },
+            { id: "GCC0053", concession: "Econoroeste", area: "GEN", function: "Integrante", name: "Andressa Faria", email: "Andressa.Faria@ecovias.com.br", manager: "Cristiana Mara Magalhaes de Oliveira", observation: "", status: "Ativo" },
+            { id: "GCC0054", concession: "Econoroeste", area: "GEN", function: "Integrante", name: "Gabriel Acorci De Lima", email: "gabriel.lima@econoroeste.com.br", manager: "Cristiana Mara Magalhaes de Oliveira", observation: "", status: "Ativo" },
+            { id: "GCC0055", concession: "Econoroeste", area: "GAU", function: "Ponto Focal", name: "Douglas Roberto Inacio", email: "douglas.inacio@econoroeste.com.br", manager: "Gustavo Davila", observation: "", status: "Ativo" },
+            { id: "GCC0056", concession: "Econoroeste", area: "GAU", function: "Integrante", name: "Gustavo Scarparo Baffi", email: "gustavo.baffi@econoroeste.com.br", manager: "Gustavo Davila", observation: "", status: "Ativo" },
+            { id: "GCC0057", concession: "Econoroeste", area: "GAU", function: "Integrante", name: "Rodrigo de Oliveira Silva", email: "rodrigo.silva@econoroeste.com.br", manager: "Gustavo Davila", observation: "", status: "Ativo" },
+            { id: "GCC0058", concession: "Econoroeste", area: "GAU", function: "Integrante", name: "Marcelo Henrique Ferraz", email: "marcelo.ferraz@econoroeste.com.br", manager: "Gustavo Davila", observation: "", status: "Ativo" },
+            { id: "GCC0059", concession: "Econoroeste", area: "GAU", function: "Integrante", name: "Gabriel Encarnação", email: "gabriel.encarnacao@ecovias.com.br", manager: "Gustavo Davila", observation: "", status: "Ativo" },
+            { id: "GCC0060", concession: "Econoroeste", area: "GAU", function: "Integrante", name: "Daniele Rolim", email: "Daniele.Rolim@ecovias.com.br", manager: "Gustavo Davila", observation: "", status: "Ativo" },
+            { id: "GCC0061", concession: "Econoroeste", area: "CSU", function: "Ponto Focal", name: "Alex Gomes Roque", email: "alex.roque@econoroeste.com.br", manager: "Nayara Marques", observation: "", status: "Ativo" },
+            { id: "GCC0062", concession: "Econoroeste", area: "CSU", function: "Integrante", name: "Ingrid Nayara Cardoso Martins", email: "ingrid.martins@econoroeste.com.br", manager: "Nayara Marques", observation: "", status: "Ativo" },
+            { id: "GCC0063", concession: "Econoroeste", area: "CSU", function: "Integrante", name: "Giovanna Ciasulli", email: "giovanna.ciasulli@econoroeste.com.br", manager: "Nayara Marques", observation: "Projetos Sociais", status: "Ativo" },
+            { id: "GCC0064", concession: "Econoroeste", area: "RH", function: "Ponto Focal", name: "Thafynes Lopes da Silva", email: "thafynes.silva@ecovias.com.br", manager: "Thalita Bezerra Peixoto", observation: "", status: "Ativo" },
+            { id: "GCC0065", concession: "Econoroeste", area: "AJL", function: "Ponto Focal", name: "Barbara Salgaço Maccagnan", email: "barbara.maccagnan@econoroeste.com.br", manager: "Emily Martins Barbosa", observation: "", status: "Ativo" },
+            { id: "GCC0066", concession: "Econoroeste", area: "AJL", function: "Integrante", name: "Felipe Pereira", email: "T_Felipe.Pereira@econoroeste.com.br", manager: "Emily Martins Barbosa", observation: "", status: "Ativo" },
+            { id: "GCC0067", concession: "Econoroeste", area: "AJL", function: "Integrante", name: "Beatriz Condi", email: "beatriz.condi@ecorodovias.com.br", manager: "Emily Martins Barbosa", observation: "Procon", status: "Ativo" },
+            { id: "GCC0068", concession: "Econoroeste", area: "DAM", function: "Ponto Focal", name: "Jhonatan", email: "jhonatan@econoroeste.com.br", manager: "Fabiano Francisco Bovo", observation: "", status: "Ativo" },
+
+            // Raposo Castello
+            { id: "GCC0069", concession: "Raposo Castello", area: "GEN", function: "Ponto Focal", name: "Jessica Nunes Dias Santos", email: "jessica.santos@ecovias.com.br", manager: "Vinicius Zampieri de Lima", observation: "Obras", status: "Ativo" },
+            { id: "GCC0070", concession: "Raposo Castello", area: "GEN", function: "Integrante", name: "Tainara Lure Marques de Queiroz", email: "tainara.queiroz@ecovias.com.br", manager: "Vinicius Zampieri de Lima", observation: "Obras", status: "Ativo" },
+            { id: "GCC0071", concession: "Raposo Castello", area: "GEN", function: "Integrante", name: "Maria Fernanda de Jesus Santos", email: "maria.santos@ecovias.com.br", manager: "Vinicius Zampieri de Lima", observation: "Obras", status: "Ativo" },
+            { id: "GCC0072", concession: "Raposo Castello", area: "GEN", function: "Integrante", name: "Angelo Aparecido Ramos Morais", email: "angelo.morais@ecovias.com.br", manager: "Vinicius Zampieri de Lima", observation: "Obras", status: "Ativo" },
+            { id: "GCC0073", concession: "Raposo Castello", area: "GEN", function: "Integrante", name: "Diego Ferreira de Brito", email: "diego.brito@ecovias.com.br", manager: "Vinicius Zampieri de Lima", observation: "Obras", status: "Ativo" },
+            { id: "GCC0074", concession: "Raposo Castello", area: "GEN", function: "Integrante", name: "Mayara Lopes de Oliveira", email: "mayara.oliveira@ecovias.com.br", manager: "Vinicius Zampieri de Lima", observation: "Obras", status: "Ativo" },
+            { id: "GCC0075", concession: "Raposo Castello", area: "GEN", function: "Integrante", name: "Carlos Eduardo Yamaoka", email: "carlos.yamaoka@ecovias.com.br", manager: "Vinicius Zampieri de Lima", observation: "Obras", status: "Ativo" },
+            { id: "GCC0076", concession: "Raposo Castello", area: "GEN", function: "Integrante", name: "Lucas de Paula Assumpcao Costa", email: "lucas.costa@ecovias.com.br", manager: "Vinicius Zampieri de Lima", observation: "Obras", status: "Ativo" },
+            { id: "GCC0077", concession: "Raposo Castello", area: "GEN", function: "Integrante", name: "Vinicius Zampieri de Lima", email: "vinicius.lima@ecovias.com.br", manager: "Daniel Schenkel", observation: "Obras", status: "Ativo" },
+            { id: "GCC0078", concession: "Raposo Castello", area: "GEN", function: "Integrante", name: "Christopher Lapuente Pinheiro", email: "christopher.pinheiro@ecovias.com.br", manager: "Daniel Schenkel", observation: "Obras", status: "Ativo" },
+            { id: "GCC0079", concession: "Raposo Castello", area: "GEN", function: "Integrante", name: "Tierre Campos da Silva", email: "tierre.silva@ecovias.com.br", manager: "Daniel Schenkel", observation: "Obras", status: "Ativo" },
+            { id: "GCC0080", concession: "Raposo Castello", area: "GEN", function: "Integrante", name: "Daniele Rolim", email: "daniele.rolim@ecovias.com.br", manager: "Daniel Schenkel", observation: "Obras", status: "Ativo" },
+            { id: "GCC0081", concession: "Raposo Castello", area: "GEN", function: "Grupo de E-mail", name: "Correspondência GAU", email: "correspondenciasgau@ecovias.com.br", manager: "Daniel Schenkel", observation: "Obras", status: "Ativo" },
+            { id: "GCC0082", concession: "Raposo Castello", area: "GEN", function: "Integrante", name: "Gabriel Encarnação", email: "gabriel.encarnacao@ecovias.com.br", manager: "Vinicius A. Antonioli", observation: "Obras", status: "Ativo" },
+            { id: "GCC0083", concession: "Raposo Castello", area: "CSU", function: "Ponto Focal", name: "Natacha D Ordaz Lhano Santos", email: "natacha.santos@ecovias.com.br", manager: "Thiago de Oliveira Machado", observation: "", status: "Ativo" },
+            { id: "GCC0084", concession: "Raposo Castello", area: "CSU", function: "Integrante", name: "Natalia Pavan Schultz", email: "natalia.schultz@ecovias.com.br", manager: "Thiago de Oliveira Machado", observation: "", status: "Ativo" },
+            { id: "GCC0085", concession: "Raposo Castello", area: "RH", function: "Ponto Focal", name: "Beatriz Marques", email: "beatriz.marques@ecovias.com.br", manager: "Thalita Peixoto", observation: "", status: "Ativo" },
+            { id: "GCC0086", concession: "Raposo Castello", area: "AJL", function: "Ponto Focal", name: "Gabriela Rodrigues Ferreira", email: "gabriela.ferreira@ecovias.com.br", manager: "Larissa Paganelli", observation: "", status: "Ativo" },
+            { id: "GCC0087", concession: "Raposo Castello", area: "AJL", function: "Integrante", name: "Bruno Montanari Pereira", email: "bruno.pereira@ecovias.com.br", manager: "Larissa Paganelli", observation: "", status: "Ativo" },
+            { id: "GCC0088", concession: "Raposo Castello", area: "AJL", function: "Integrante", name: "Rafael Luz", email: "Rafael.Luz@ecorodovias.com.br", manager: "Larissa Paganelli", observation: "Procon", status: "Ativo" },
+            { id: "GCC0089", concession: "Raposo Castello", area: "AJL", function: "Grupo de E-mail", name: "Contencioso", email: "Contencioso@ecorodovias.com.br", manager: "Larissa Paganelli", observation: "Procon", status: "Ativo" },
+            { id: "GCC0090", concession: "Raposo Castello", area: "AJL", function: "Integrante", name: "Beatriz Condi", email: "beatriz.condi@ecorodovias.com.br", manager: "Larissa Paganelli", observation: "Procon", status: "Ativo" },
+            { id: "GCC0091", concession: "Raposo Castello", area: "COM", function: "Ponto Focal", name: "Luana de Fatima Ferrari", email: "luana.ferrari@ecovias.com.br", manager: "Luana de Fatima Ferrari", observation: "", status: "Ativo" },
+            { id: "GCC0092", concession: "Raposo Castello", area: "COM", function: "Integrante", name: "Leticia Penteado Figueiredo Holtz", email: "leticia.holtz@ecovias.com.br", manager: "Luana de Fatima Ferrari", observation: "", status: "Ativo" },
+            { id: "GCC0093", concession: "Raposo Castello", area: "DTC", function: "Ponto Focal", name: "Monique Cruz", email: "monique.cruz@ecovias.com.br", manager: "Ricardo Gimenes", observation: "", status: "Ativo" },
+            { id: "GCC0094", concession: "Raposo Castello", area: "DTC", function: "Integrante", name: "William Hartwig", email: "william.hartwig@ecovias.com.br", manager: "Ricardo Gimenes", observation: "", status: "Ativo" },
+            { id: "GCC0095", concession: "Raposo Castello", area: "DTC", function: "Integrante", name: "Wesley Zanella", email: "wesley.zanella@ecovias.com.br", manager: "Ricardo Gimenes", observation: "", status: "Ativo" }
+        ];
+
+        // Memória para lote importado temporário
+        let importedBatchContacts = [];
+
+        // Listas de Categorias do Sistema
+        const concessionsList = ["Imigrantes", "Leste Paulista", "Econoroeste", "Raposo Castello"];
+        const areasList = ["GEN", "GAU", "CSU", "RH", "AJL", "DTC", "COM", "DAM"];
+        const functionsList = ["Ponto Focal", "Integrante", "Grupo de E-mail", "Especialista"];
+        const statusList = ["Ativo", "Férias", "Licença", "Substituição", "Desligado"];
+
+        // Filtros Ativos
+        let activeFilters = {
+            concessions: [...concessionsList],
+            areas: [...areasList],
+            functions: [...functionsList],
+            status: ["Ativo"]
+        };
+
+        // Filtro especial de auditoria rápida
+        let dataHealthFilter = null;
+
+        window.onload = function() {
+            renderFilterCheckboxes();
+            renderConsulta();
+            renderBaseTable();
+            populateModalDropdowns();
+            renderDashboard();
+            setupDragAndDrop();
+        };
+
+        // Arraste e Solte de Documentos
+        function setupDragAndDrop() {
+            const zone = document.getElementById('drop-zone');
+            if(!zone) return;
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                zone.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    zone.classList.add('border-[#008542]', 'bg-green-50/30');
+                }, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                zone.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    zone.classList.remove('border-[#008542]', 'bg-green-50/30');
+                }, false);
+            });
+
+            zone.addEventListener('drop', (e) => {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                if(files.length > 0) {
+                    processUploadedFile(files[0]);
+                }
+            }, false);
+        }
+
+        function handleFileSelect(e) {
+            const files = e.target.files;
+            if (files.length > 0) {
+                processUploadedFile(files[0]);
+            }
+        }
+
+        // Lê o conteúdo do documento TXT/CSV e coloca no painel
+        
+        // =====================================================================
+        // MODELOS DE ESTRUTURA PADRONIZADOS DE E-MAIL (INOV)
+        // Substituição dinâmica de partes-chave do texto ({CONCESSAO}, {AREA}, etc.)
+        // =====================================================================
+        const emailTemplatesCatalog = {
+            comunicado: {
+                name: "Comunicado Operacional / Rotina",
+                defaultSubject: "[INOV / {CONCESSAO}] Comunicado Operacional — Área {AREA}",
+                defaultBody: `Prezados(as) integrantes da equipe ({AREA} — {CONCESSAO}),
+
+Comunicamos formalmente as seguintes diretrizes operacionais e administrativas:
+
+{CORPO_TEXTO}
+
+Solicitamos que todos os pontos focais e integrantes tomem ciência e repliquem as orientações às respectivas equipes de campo e suporte.
+
+Data de Emissão: {DATA_ATUAL}
+Responsáveis pelas Áreas: {GESTOR}
+
+Atenciosamente,
+Coordenação de Governança & Comunicações Operacionais
+EcoRodovias SP`
+            },
+            cobranca: {
+                name: "Cobrança de Prazo & Notificação de Pendência",
+                defaultSubject: "[URGENTE / PRAZO: {PRAZO}] Notificação de Pendência — {CONCESSAO} ({AREA})",
+                defaultBody: `Prezados(as) {NOMES_DESTAQUE},
+
+Reportamos a existência de pendência operacional/documental referente ao processo institucional, com vencimento impreterível para {PRAZO}:
+
+• Concessão(ões): {CONCESSAO}
+• Área(s) Envolvida(s): {AREA}
+• Referência Documental / Processo: {REFERENCIA_DOCUMENTO}
+• Pauta / Detalhamento: {CORPO_TEXTO}
+
+Pedimos a gentileza de acusar o recebimento deste comunicado e encaminhar o retorno conclusivo até o prazo estipulado ({PRAZO}) para manter a conformidade com as diretrizes da ARTESP e governança interna.
+
+Atenciosamente,
+Gestão de Comunicações & Prazos Contratuais
+EcoRodovias SP`
+            },
+            convocacao: {
+                name: "Convocação de Reunião & Alinhamento de Pauta",
+                defaultSubject: "[CONVOCAÇÃO] Reunião de Alinhamento Técnico — {AREA} ({CONCESSAO})",
+                defaultBody: `Prezados(as) {NOMES_DESTAQUE},
+
+Convocamos os pontos focais e integrantes das áreas ({AREA}) da {CONCESSAO} para reunião técnica de alinhamento:
+
+• Pauta Principal: {ASSUNTO}
+• Detalhamento / Objetivos: {CORPO_TEXTO}
+• Data / Prazo Limite de Confirmação: {PRAZO}
+• Documento de Apoio: {REFERENCIA_DOCUMENTO}
+• Local: Microsoft Teams (convite de calendário encaminhado a todos os destinatários em cópia oculta)
+
+Contamos com a pontualidade e a participação de todos os setores envolvidos.
+
+Atenciosamente,
+Coordenação Técnica & Gestão de Pautas
+EcoRodovias SP`
+            },
+            solicitacao: {
+                name: "Solicitação Técnica & Coleta de Dados",
+                defaultSubject: "[SOLICITAÇÃO] Coleta de Informações / Procedimentos — {CONCESSAO} ({AREA})",
+                defaultBody: `Prezada equipe da {AREA} ({CONCESSAO}),
+
+Em alinhamento aos procedimentos de governança institucional, solicitamos o fornecimento das seguintes informações / insumos:
+
+{CORPO_TEXTO}
+
+• Referência Documental: {REFERENCIA_DOCUMENTO}
+• Prazo Solicitado para Retorno: {PRAZO}
+• Gestor Responsável: {GESTOR}
+
+Ficamos à disposição para quaisquer dúvidas operacionais.
+
+Atenciosamente,
+Equipe de Gestão e Suporte aos Pontos Focais
+EcoRodovias SP`
+            },
+            circular: {
+                name: "Circular Institucional às Concessões",
+                defaultSubject: "[CIRCULAR INSTITUCIONAL] Diretriz Corporativa — Concessões EcoRodovias SP",
+                defaultBody: `Prezados Gestores, Especialistas e Pontos Focais ({CONCESSAO}),
+
+Encaminhamos a presente Circular Institucional referente à pauta: "{ASSUNTO}".
+
+{CORPO_TEXTO}
+
+• Data de Registro: {DATA_ATUAL}
+• Abrangência: Setores {AREA} de {CONCESSAO}
+• Documento Associado: {REFERENCIA_DOCUMENTO}
+
+Contamos com a habitual cooperação e estrita observância das normas regulatórias.
+
+Atenciosamente,
+Diretoria de Governança, Contratos & Operações
+EcoRodovias SP`
+            },
+            customizado: {
+                name: "Modelo Livre com Tags Dinâmicas",
+                defaultSubject: "[INOV] {ASSUNTO} — {CONCESSAO}",
+                defaultBody: `Prezada equipe {AREA} ({CONCESSAO}),
+
+{CORPO_TEXTO}
+
+Referência: {REFERENCIA_DOCUMENTO}
+Prazo: {PRAZO}
+Data: {DATA_ATUAL}
+
+Atenciosamente,
+Sistema Inov — EcoRodovias SP`
+            }
+        };
+
+        // Atualiza os placeholders ao trocar o template no dropdown
+        function onTemplateChange() {
+            const templateKey = document.getElementById('ai-email-template').value;
+            const tpl = emailTemplatesCatalog[templateKey] || emailTemplatesCatalog.comunicado;
+            
+            const contextInput = document.getElementById('ai-email-context');
+            const prazoInput = document.getElementById('template-prazo');
+            const refInput = document.getElementById('template-ref');
+            const detalhesInput = document.getElementById('template-detalhes');
+
+            if (!prazoInput.value) {
+                const dataLimite = new Date();
+                dataLimite.setDate(dataLimite.getDate() + 5);
+                prazoInput.value = dataLimite.toLocaleDateString('pt-BR') + ' às 17h00';
+            }
+
+            if (!refInput.value) {
+                refInput.value = "Processo SEI / Demanda Interna " + new Date().getFullYear();
+            }
+
+            if (!contextInput.value) {
+                if (templateKey === 'cobranca') contextInput.value = "Cobrança de pendências operacionais e documentais";
+                else if (templateKey === 'convocacao') contextInput.value = "Reunião de alinhamento sobre metas e processos";
+                else if (templateKey === 'solicitacao') contextInput.value = "Solicitação de dados técnicos para relatório semestral";
+                else if (templateKey === 'circular') contextInput.value = "Diretrizes corporativas e padronização operacional";
+                else contextInput.value = "Alinhamento operacional de rotina";
+            }
+        }
+
+        // Aplica a estrutura padronizada substituindo todas as variáveis dinamicamente
+        function applyStandardizedTemplate() {
+            const activeFilteredContacts = contacts.filter(item => {
+                return activeFilters.concessions.includes(item.concession) &&
+                       activeFilters.areas.includes(item.area) &&
+                       activeFilters.functions.includes(item.function) &&
+                       activeFilters.status.includes(item.status);
+            });
+
+            if (activeFilteredContacts.length === 0) {
+                showToast("Filtre ao menos um contato ou área primeiro!", "bg-rose-600");
+                return;
+            }
+
+            const templateKey = document.getElementById('ai-email-template').value;
+            const tpl = emailTemplatesCatalog[templateKey] || emailTemplatesCatalog.comunicado;
+
+            const concessions = [...new Set(activeFilteredContacts.map(c => c.concession))].join(', ') || 'Todas as Concessões';
+            const areas = [...new Set(activeFilteredContacts.map(c => c.area))].join(', ') || 'Todas as Áreas';
+            const managers = [...new Set(activeFilteredContacts.filter(c => c.manager).map(c => c.manager))].join(', ') || 'Gestores Responsáveis';
+            
+            const sampleNamesList = activeFilteredContacts.slice(0, 4).map(c => c.name);
+            const namesDestaque = sampleNamesList.join(', ') + (activeFilteredContacts.length > 4 ? ` e demais ${activeFilteredContacts.length - 4} integrantes` : '');
+
+            const dataAtual = new Date().toLocaleDateString('pt-BR');
+            const assunto = document.getElementById('ai-email-context').value.trim() || 'Assunto Corporativo Operacional';
+            const prazo = document.getElementById('template-prazo').value.trim() || 'Em até 5 dias úteis';
+            const refDoc = document.getElementById('template-ref').value.trim() || 'Processo Administrativo Interno';
+            const corpoTexto = document.getElementById('template-detalhes').value.trim() || 'Solicitamos a atenção e o acompanhamento das atividades planejadas para este ciclo operacional.';
+
+            // Substituição de chaves no Assunto
+            let finalSubject = tpl.defaultSubject
+                .replace(/{CONCESSAO}/g, concessions)
+                .replace(/{AREA}/g, areas)
+                .replace(/{ASSUNTO}/g, assunto)
+                .replace(/{PRAZO}/g, prazo)
+                .replace(/{REFERENCIA_DOCUMENTO}/g, refDoc)
+                .replace(/{DATA_ATUAL}/g, dataAtual);
+
+            // Substituição de chaves no Corpo
+            let finalBody = tpl.defaultBody
+                .replace(/{CONCESSAO}/g, concessions)
+                .replace(/{AREA}/g, areas)
+                .replace(/{NOMES_DESTAQUE}/g, namesDestaque)
+                .replace(/{GESTOR}/g, managers)
+                .replace(/{DATA_ATUAL}/g, dataAtual)
+                .replace(/{ASSUNTO}/g, assunto)
+                .replace(/{PRAZO}/g, prazo)
+                .replace(/{REFERENCIA_DOCUMENTO}/g, refDoc)
+                .replace(/{CORPO_TEXTO}/g, corpoTexto);
+
+            document.getElementById('ai-email-subject').value = finalSubject;
+            document.getElementById('ai-email-body').value = finalBody;
+            document.getElementById('ai-email-result-container').classList.remove('hidden');
+
+            updateCopilotPrompt(finalSubject, finalBody);
+            showToast("Estrutura padronizada aplicada com sucesso!");
+            setTimeout(() => { if (window.lucide) lucide.createIcons(); }, 30);
+        }
+
+        // =====================================================================
+        // PARSER UNIVERSAL DE DOCUMENTOS (DROPZONE PARA XLSX, CSV, TXT, PDF, DOCX)
+        // =====================================================================
+        function processUploadedFile(file) {
+            const fileName = file.name.toLowerCase();
+            const rawBox = document.getElementById('ai-batch-raw-text');
+            
+            // Caso seja planilha Excel (.xlsx, .xls)
+            if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
+                if (typeof XLSX === 'undefined') {
+                    showToast("Carregando biblioteca Excel... tente em instantes.", "bg-amber-600");
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, { type: 'array' });
+                        let textOutput = `--- PLANILHA: ${file.name} ---\n`;
+                        
+                        workbook.SheetNames.forEach(sheetName => {
+                            textOutput += `\n[ABA: ${sheetName}]\n`;
+                            const csvSheet = XLSX.utils.sheet_to_csv(workbook.Sheets[sheetName], { FS: ';' });
+                            textOutput += csvSheet + '\n';
+                        });
+
+                        rawBox.value = textOutput;
+                        showToast(`Planilha ${file.name} lida com sucesso! Clique em 'Processar Documento'.`);
+                    } catch (err) {
+                        showToast("Erro ao processar planilha Excel: " + err.message, "bg-rose-600");
+                    }
+                };
+                reader.readAsArrayBuffer(file);
+                return;
+            }
+
+            // Arquivos de texto, CSV, TSV, JSON, EML
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                rawBox.value = evt.target.result;
+                showToast(`Arquivo ${file.name} carregado! Clique em 'Processar Documento' abaixo.`);
+            };
+            reader.readAsText(file, 'UTF-8');
+        }
+
+        // Parser local determinístico de contatos e documentos (sem necessidade de API)
+        function parseContactsLocally(text) {
+            const foundContacts = [];
+            const emailRegex = /([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g;
+            const lines = text.split(/\r?\n/);
+            
+            const recognizedAreas = ['GEN', 'GAU', 'CSU', 'RH', 'AJL', 'DTC', 'COM', 'DAM', 'DS'];
+            const recognizedConcessions = [
+                { keyword: 'imigrantes', name: 'Imigrantes' },
+                { keyword: 'ecovias', name: 'Imigrantes' },
+                { keyword: 'leste paulista', name: 'Leste Paulista' },
+                { keyword: 'ecopistas', name: 'Leste Paulista' },
+                { keyword: 'econoroeste', name: 'Econoroeste' },
+                { keyword: 'noroeste', name: 'Econoroeste' },
+                { keyword: 'raposo', name: 'Raposo Castello' },
+                { keyword: 'castello', name: 'Raposo Castello' }
+            ];
+
+            let globalDetectedConcession = 'Imigrantes';
+            const lowerText = text.toLowerCase();
+            for (let rc of recognizedConcessions) {
+                if (lowerText.includes(rc.keyword)) {
+                    globalDetectedConcession = rc.name;
+                    break;
+                }
+            }
+
+            // Processa linha a linha
+            const seenEmails = new Set();
+            lines.forEach(line => {
+                const matches = line.match(emailRegex);
+                if (matches) {
+                    matches.forEach(email => {
+                        const cleanEmail = email.trim();
+                        if (seenEmails.has(cleanEmail.toLowerCase())) return;
+                        seenEmails.add(cleanEmail.toLowerCase());
+
+                        // Detecta nome
+                        let name = cleanEmail.split('@')[0].replace(/[._]/g, ' ');
+                        name = name.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+                        
+                        // Se a linha tem delimitador (como CSV com ;)
+                        const parts = line.split(/[;,\t]/);
+                        if (parts.length > 2) {
+                            parts.forEach(p => {
+                                const tp = p.trim();
+                                if (tp.length > 3 && !tp.includes('@') && !tp.includes('http') && isNaN(tp) && !recognizedAreas.includes(tp.toUpperCase())) {
+                                    name = tp;
+                                }
+                            });
+                        }
+
+                        // Detecta área
+                        let area = 'GEN';
+                        for (let a of recognizedAreas) {
+                            if (new RegExp(`\\b${a}\\b`, 'i').test(line)) {
+                                area = a;
+                                break;
+                            }
+                        }
+
+                        // Detecta concession
+                        let concession = globalDetectedConcession;
+                        for (let rc of recognizedConcessions) {
+                            if (line.toLowerCase().includes(rc.keyword)) {
+                                concession = rc.name;
+                                break;
+                            }
+                        }
+
+                        foundContacts.push({
+                            concession: concession,
+                            area: area,
+                            function: 'Ponto Focal',
+                            name: name,
+                            email: cleanEmail,
+                            manager: '',
+                            observation: 'Extraído automaticamente do documento',
+                            status: 'Ativo'
+                        });
+                    });
+                }
+            });
+
+            return foundContacts;
+        }
+
+
+        // Limpar todos os filtros da Central de Consulta
+        function resetAllFilters() {
+            activeFilters.concessions = [...concessionsList];
+            activeFilters.areas = [...areasList];
+            activeFilters.functions = [...functionsList];
+            activeFilters.status = ["Ativo"];
+            dataHealthFilter = null;
+            document.getElementById('health-filter-banner').classList.add('hidden');
+            renderFilterCheckboxes();
+            renderConsulta();
+        }
+
+        // Alternar grupos inteiros de filtros (Todos / Nenhum)
+        function toggleGroupFilter(category, selectAll) {
+            if (category === 'concessions') activeFilters.concessions = selectAll ? [...concessionsList] : [];
+            if (category === 'areas') activeFilters.areas = selectAll ? [...areasList] : [];
+            if (category === 'functions') activeFilters.functions = selectAll ? [...functionsList] : [];
+            if (category === 'status') activeFilters.status = selectAll ? [...statusList] : [];
+            renderFilterCheckboxes();
+            renderConsulta();
+        }
+
+        // Sistema de abas fluidas
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`tab-content-${tabId}`).classList.remove('hidden');
+            
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-[#008542]', 'text-white', 'shadow-md');
+                btn.classList.add('text-green-100', 'hover:bg-white/10');
+            });
+            const activeBtn = document.getElementById(`btn-${tabId}`);
+            activeBtn.classList.add('bg-[#008542]', 'text-white', 'shadow-md');
+            activeBtn.classList.remove('text-green-100', 'hover:bg-white/10');
+
+            if (tabId === 'dashboard') {
+                renderDashboard();
+            }
+            setTimeout(() => {
+                lucide.createIcons();
+            }, 30);
+        }
+
+        // Constrói checkboxes de triagem
+        function renderFilterCheckboxes() {
+            const concDiv = document.getElementById('filter-concession');
+            concDiv.innerHTML = concessionsList.map(c => `
+                <label class="flex items-center space-x-2.5 text-sm cursor-pointer p-1 rounded hover:bg-slate-50 transition-all">
+                    <input type="checkbox" ${activeFilters.concessions.includes(c) ? 'checked' : ''} onchange="toggleFilter('concessions', '${c}')" class="rounded border-slate-300 text-[#008542] focus:ring-[#008542] w-4 h-4">
+                    <span class="text-slate-700">${c}</span>
+                </label>
+            `).join('');
+
+            const areaDiv = document.getElementById('filter-area');
+            areaDiv.innerHTML = areasList.map(a => `
+                <label class="flex items-center space-x-2 text-sm cursor-pointer p-1 rounded hover:bg-slate-50 transition-all">
+                    <input type="checkbox" ${activeFilters.areas.includes(a) ? 'checked' : ''} onchange="toggleFilter('areas', '${a}')" class="rounded border-slate-300 text-[#008542] focus:ring-[#008542] w-4 h-4">
+                    <span class="text-slate-700 font-semibold text-xs">${a}</span>
+                </label>
+            `).join('');
+
+            const funcDiv = document.getElementById('filter-function');
+            funcDiv.innerHTML = functionsList.map(f => `
+                <label class="flex items-center space-x-2.5 text-sm cursor-pointer p-1 rounded hover:bg-slate-50 transition-all">
+                    <input type="checkbox" ${activeFilters.functions.includes(f) ? 'checked' : ''} onchange="toggleFilter('functions', '${f}')" class="rounded border-slate-300 text-[#008542] focus:ring-[#008542] w-4 h-4">
+                    <span class="text-slate-700">${f}</span>
+                </label>
+            `).join('');
+
+            const statDiv = document.getElementById('filter-status');
+            statDiv.innerHTML = statusList.map(s => `
+                <label class="flex items-center space-x-2.5 text-sm cursor-pointer p-1 rounded hover:bg-slate-50 transition-all">
+                    <input type="checkbox" ${activeFilters.status.includes(s) ? 'checked' : ''} onchange="toggleFilter('status', '${s}')" class="rounded border-slate-300 text-[#008542] focus:ring-[#008542] w-4 h-4">
+                    <span class="text-slate-700">${s}</span>
+                </label>
+            `).join('');
+            setTimeout(() => lucide.createIcons(), 20);
+        }
+
+        // Alternar status do filtro individual
+        function toggleFilter(category, value) {
+            const index = activeFilters[category].indexOf(value);
+            if (index > -1) {
+                activeFilters[category].splice(index, 1);
+            } else {
+                activeFilters[category].push(value);
+            }
+            renderConsulta();
+        }
+
+        // Processa Filtros de Diagnóstico rápido (Auditorias de Saúde)
+        function runQuickFilter(key) {
+            activeFilters.concessions = [...concessionsList];
+            activeFilters.areas = [...areasList];
+            activeFilters.functions = [...functionsList];
+            activeFilters.status = [...statusList];
+
+            dataHealthFilter = key;
+            const banner = document.getElementById('health-filter-banner');
+            const nameSpan = document.getElementById('health-filter-name');
+
+            if (key === "empty-emails") {
+                nameSpan.innerText = "Contactos sem E-mail Registado";
+                banner.classList.remove('hidden');
+            } else if (key === "empty-managers") {
+                nameSpan.innerText = "Contactos sem Gestor Indicado";
+                banner.classList.remove('hidden');
+            } else if (key === "inactive") {
+                activeFilters.status = ["Férias", "Licença", "Substituição", "Desligado"];
+                nameSpan.innerText = "Filtro Especial de Inativos / Licenças";
+                banner.classList.remove('hidden');
+            }
+
+            renderFilterCheckboxes();
+            renderConsulta();
+            switchTab('consulta');
+        }
+
+        function clearHealthFilter() {
+            dataHealthFilter = null;
+            document.getElementById('health-filter-banner').classList.add('hidden');
+            resetAllFilters();
+        }
+
+        // Processa Filtros e Renderiza a Consulta + Mailing Automático
+        function renderConsulta() {
+            const filtered = contacts.filter(item => {
+                const matchFilters = activeFilters.concessions.includes(item.concession) &&
+                                     activeFilters.areas.includes(item.area) &&
+                                     activeFilters.functions.includes(item.function) &&
+                                     activeFilters.status.includes(item.status);
+                if (!matchFilters) return false;
+
+                if (dataHealthFilter === 'empty-emails') return !item.email;
+                if (dataHealthFilter === 'empty-managers') return !item.manager;
+                if (dataHealthFilter === 'inactive') return item.status !== 'Ativo';
+
+                return true;
+            });
+
+            // Tabela de Resultados de Consulta
+            const tbody = document.getElementById('table-results');
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-slate-400 italic bg-slate-50/50">Nenhum contacto encontrado com os filtros selecionados.</td></tr>`;
+            } else {
+                tbody.innerHTML = filtered.map(item => `
+                    <tr class="hover:bg-slate-50/80 transition-all border-b border-slate-100">
+                        <td class="py-3.5 px-4 font-semibold text-[#008542]">${item.concession}</td>
+                        <td class="py-3.5 px-4"><span class="bg-green-50 text-[#008542] text-xs font-bold px-2.5 py-1 rounded-md border border-green-100/60">${item.area}</span></td>
+                        <td class="py-3.5 px-4 text-slate-600">${item.function}</td>
+                        <td class="py-3.5 px-4 font-semibold text-slate-800">${item.name}</td>
+                        <td class="py-3.5 px-4 font-mono text-xs text-blue-600">${item.email || '<span class="text-slate-300">Sem e-mail</span>'}</td>
+                        <td class="py-3.5 px-4 text-slate-600">${item.manager || '-'}</td>
+                        <td class="py-3.5 px-4 text-center">
+                            <span class="inline-block px-2.5 py-1 text-xs font-bold rounded-full ${item.status === 'Ativo' ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-amber-50 text-amber-700 border border-amber-100'}">
+                                ${item.status}
+                            </span>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+            // Atualiza Mala Direta / Textarea baseando-se no Separador Escolhido
+            const emails = filtered.filter(item => item.email).map(item => item.email);
+            const separatorType = document.getElementById('mail-separator').value;
+            const mailingBox = document.getElementById('mailing-box');
+            
+            let finalSeparator = "; ";
+            if (separatorType === "comma") finalSeparator = ", ";
+            if (separatorType === "newline") finalSeparator = "\n";
+
+            let uniqueEmails = [];
+            if (emails.length > 0) {
+                uniqueEmails = [...new Set(emails)];
+                mailingBox.value = uniqueEmails.join(finalSeparator) + (separatorType !== "newline" ? ';' : '');
+                
+                document.getElementById('email-counter').innerHTML = `
+                    <i data-lucide="check" class="w-3.5 h-3.5 mr-1 text-white inline-block"></i>
+                    <span>${uniqueEmails.length} e-mails</span>
+                `;
+                document.getElementById('email-counter').className = "bg-[#008542] text-white text-xs font-semibold px-3 py-1 rounded-full shadow-sm flex items-center";
+            } else {
+                mailingBox.value = '';
+                document.getElementById('email-counter').innerHTML = `
+                    <i data-lucide="info" class="w-3.5 h-3.5 mr-1 text-white inline-block"></i>
+                    <span>0 e-mails</span>
+                `;
+                document.getElementById('email-counter').className = "bg-slate-500 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-sm flex items-center";
+            }
+
+            // Atualizar o Prompt do M365 Copilot
+            updateCopilotPrompt(uniqueEmails);
+
+            document.getElementById('table-counter').innerHTML = `
+                <i data-lucide="users" class="w-3.5 h-3.5 mr-1 text-slate-500 inline-block"></i>
+                <span>Mostrando ${filtered.length} de ${contacts.length}</span>
+            `;
+            setTimeout(() => lucide.createIcons(), 20);
+        }
+
+        // Função para atualizar dinamicamente o Prompt de Suporte ao M365 Copilot
+        function updateCopilotPrompt(uniqueEmails) {
+            const previewBox = document.getElementById('copilot-prompt-preview');
+            const targetConcessions = [...new Set(contacts.filter(item => activeFilters.concessions.includes(item.concession)).map(c => c.concession))].join(', ');
+            const targetAreas = [...new Set(contacts.filter(item => activeFilters.areas.includes(item.area)).map(c => c.area))].join(', ');
+            
+            const emailCount = uniqueEmails.length;
+            const emailsSlice = uniqueEmails.slice(0, 3).join(', ') + (emailCount > 3 ? '...' : '');
+
+            const promptText = `Atue como o Assistente de Mala Direta de IA da EcoRodovias SP. Preciso que elabore uma mensagem profissional para as Concessões [${targetConcessions || 'Todas'}] das áreas [${targetAreas || 'Todas'}]. Envie para estes ${emailCount} e-mails em BCC: [${emailsSlice}]. O teor deve focar em eficiência, cooperação operacional e conformidade com o cronograma anual.`;
+            
+            previewBox.innerText = promptText;
+            previewBox.dataset.fullPrompt = `Atue como o Assistente de Mala Direta de IA da EcoRodovias SP. Preciso que elabore uma mensagem profissional para as Concessões [${targetConcessions || 'Todas'}] das áreas [${targetAreas || 'Todas'}]. Envie para estes ${emailCount} e-mails em BCC: [${uniqueEmails.join('; ')}]. O teor deve focar em eficiência, cooperação operacional e conformidade com o cronograma anual corporativo.`;
+        }
+
+        // Copiar o Prompt Otimizado para o Copilot M365
+        function copyCopilotPrompt() {
+            const previewBox = document.getElementById('copilot-prompt-preview');
+            const fullPrompt = previewBox.dataset.fullPrompt || previewBox.innerText;
+            
+            if (contacts.length === 0) {
+                showToast("Filtre alguns contatos primeiro!", "bg-rose-600");
+                return;
+            }
+
+            // Criar um elemento temporário para copiar o texto completo, já que o innerText pode estar resumido com reticências
+            const tempInput = document.createElement("textarea");
+            tempInput.value = fullPrompt;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            
+            showToast("Prompt do Copilot M365 copiado! Cole-o no Microsoft 365 Copilot.");
+        }
+
+        // Abrir Mala Direta no Outlook local (mailto:)
+        function openInOutlook() {
+            const mailingBox = document.getElementById('mailing-box');
+            if (!mailingBox.value) {
+                showToast("Filtre os e-mails primeiro!", "bg-rose-600");
+                return;
+            }
+            const cleanEmails = mailingBox.value.replace(/\n/g, '; ');
+            const subject = document.getElementById('ai-email-subject').value || "GCC | Comunicado Interno";
+            const body = document.getElementById('ai-email-body').value || "";
+
+            window.location.href = `mailto:?bcc=${encodeURIComponent(cleanEmails)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            showToast("Outlook acionado!");
+        }
+
+        // Abrir Mala Direta no Outlook Online (Microsoft 365 Deep Link)
+        function openInOutlookWeb() {
+            const mailingBox = document.getElementById('mailing-box');
+            if (!mailingBox.value) {
+                showToast("Filtre os e-mails primeiro!", "bg-rose-600");
+                return;
+            }
+            const cleanEmails = mailingBox.value.replace(/\n/g, '; ');
+            const subject = document.getElementById('ai-email-subject').value || "GCC | Comunicado Interno";
+            const body = document.getElementById('ai-email-body').value || "";
+
+            const deepLink = `https://outlook.office.com/mail/deeplink/compose?bcc=${encodeURIComponent(cleanEmails)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            window.open(deepLink, '_blank');
+            showToast("Redirecionando para o Outlook Web (M365)...");
+        }
+
+        // Baixar arquivo rascunho real .EML compatível com M365 Outlook
+        function downloadEML() {
+            const mailingBox = document.getElementById('mailing-box');
+            if (!mailingBox.value) {
+                showToast("Filtre os e-mails primeiro!", "bg-rose-600");
+                return;
+            }
+            const bccEmails = mailingBox.value.replace(/\n/g, '; ');
+            const subject = document.getElementById('ai-email-subject').value || "GCC - Comunicado Oficial EcoRodovias";
+            const body = document.getElementById('ai-email-body').value || "Prezados,\n\n[Insira seu comunicado aqui]";
+
+            // Formatação do protocolo message/rfc822
+            const emlContent = `To: \nBcc: ${bccEmails}\nSubject: ${subject}\nX-Unsent: 1\nContent-Type: text/plain; charset=utf-8\n\n${body}`;
+            const blob = new Blob([emlContent], { type: "message/rfc822" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `${subject.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.eml`;
+            link.click();
+            showToast("Rascunho de E-mail (.eml) descarregado!");
+        }
+
+        // Copiar conteúdo genérico
+        function copyText(elementId) {
+            const el = document.getElementById(elementId);
+            if (!el.value) return;
+            el.select();
+            el.setSelectionRange(0, 99999);
+            document.execCommand('copy');
+            showToast("Copiado!");
+        }
+
+        // Toast de aviso flutuante
+        function showToast(message, bgColor = "bg-[#008542]") {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-message');
+            toast.className = `fixed bottom-5 right-5 text-white px-6 py-3 rounded-xl shadow-2xl transition-all duration-300 flex items-center space-x-2 z-50 ${bgColor}`;
+            toastMsg.innerText = message;
+            toast.style.opacity = "1";
+            
+            setTimeout(() => {
+                toast.style.opacity = "0";
+            }, 3000);
+        }
+
+        // tbContatos: Base Geral de Dados
+        function renderBaseTable() {
+            const tbody = document.getElementById('base-table-rows');
+            tbody.innerHTML = contacts.map((item) => `
+                <tr class="hover:bg-slate-50 transition-all border-b border-slate-100">
+                    <td class="py-3 px-4 font-mono text-xs text-slate-500 font-bold">${item.id}</td>
+                    <td class="py-3 px-4 font-semibold text-slate-700">${item.concession}</td>
+                    <td class="py-3 px-4"><span class="bg-green-50 text-[#008542] text-xs font-bold px-2.5 py-0.5 rounded border border-green-100/60">${item.area}</span></td>
+                    <td class="py-3 px-4 text-slate-600">${item.function}</td>
+                    <td class="py-3 px-4 font-semibold text-slate-800">${item.name}</td>
+                    <td class="py-3 px-4 font-mono text-xs text-green-700">${item.email || '-'}</td>
+                    <td class="py-3 px-4 text-slate-600">${item.manager || '-'}</td>
+                    <td class="py-3 px-4 text-xs text-slate-500 max-w-xs truncate">${item.observation || '-'}</td>
+                    <td class="py-3 px-4 text-center">
+                        <span class="inline-block px-2.5 py-0.5 text-xs font-bold rounded-full ${item.status === 'Ativo' ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-amber-50 text-amber-700 border border-amber-100'}">
+                            ${item.status}
+                        </span>
+                    </td>
+                    <td class="py-3 px-4 text-center">
+                        <div class="flex items-center justify-center space-x-2">
+                            <button onclick="editContact('${item.id}')" class="text-green-600 hover:text-green-800 p-1 rounded hover:bg-green-50 transition-all">
+                                <i data-lucide="edit-2" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="deleteContact('${item.id}')" class="text-rose-600 hover:text-rose-800 p-1 rounded hover:bg-rose-50 transition-all">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+            setTimeout(() => lucide.createIcons(), 20);
+        }
+
+        // Filtro global
+        function filterBaseTable() {
+            const query = document.getElementById('search-global').value.toLowerCase();
+            const filtered = contacts.filter(item => {
+                return item.id.toLowerCase().includes(query) ||
+                       item.concession.toLowerCase().includes(query) ||
+                       item.area.toLowerCase().includes(query) ||
+                       item.function.toLowerCase().includes(query) ||
+                       item.name.toLowerCase().includes(query) ||
+                       item.email.toLowerCase().includes(query) ||
+                       item.manager.toLowerCase().includes(query);
+            });
+
+            const tbody = document.getElementById('base-table-rows');
+            tbody.innerHTML = filtered.map(item => `
+                <tr class="hover:bg-slate-50 transition-all border-b border-slate-100">
+                    <td class="py-3 px-4 font-mono text-xs text-slate-500 font-bold">${item.id}</td>
+                    <td class="py-3 px-4 font-semibold text-slate-700">${item.concession}</td>
+                    <td class="py-3 px-4"><span class="bg-green-50 text-[#008542] text-xs font-bold px-2.5 py-0.5 rounded border border-green-100/60">${item.area}</span></td>
+                    <td class="py-3 px-4 text-slate-600">${item.function}</td>
+                    <td class="py-3 px-4 font-semibold text-slate-800">${item.name}</td>
+                    <td class="py-3 px-4 font-mono text-xs text-green-700">${item.email || '-'}</td>
+                    <td class="py-3 px-4 text-slate-600">${item.manager || '-'}</td>
+                    <td class="py-3 px-4 text-xs text-slate-500 max-w-xs truncate">${item.observation || '-'}</td>
+                    <td class="py-3 px-4 text-center">
+                        <span class="inline-block px-2.5 py-0.5 text-xs font-bold rounded-full ${item.status === 'Ativo' ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-amber-50 text-amber-700 border border-amber-100'}">
+                            ${item.status}
+                        </span>
+                    </td>
+                    <td class="py-3 px-4 text-center">
+                        <div class="flex items-center justify-center space-x-2">
+                            <button onclick="editContact('${item.id}')" class="text-green-600 hover:text-green-800 p-1 rounded hover:bg-green-50 transition-all">
+                                <i data-lucide="edit-2" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="deleteContact('${item.id}')" class="text-rose-600 hover:text-rose-800 p-1 rounded hover:bg-rose-50 transition-all">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+            setTimeout(() => lucide.createIcons(), 20);
+        }
+
+        // Mapear dropdowns de modais
+        function populateModalDropdowns() {
+            document.getElementById('modal-concessao').innerHTML = concessionsList.map(c => `<option value="${c}">${c}</option>`).join('');
+            document.getElementById('modal-area').innerHTML = areasList.map(a => `<option value="${a}">${a}</option>`).join('');
+            document.getElementById('modal-funcao').innerHTML = functionsList.map(f => `<option value="${f}">${f}</option>`).join('');
+            document.getElementById('modal-status').innerHTML = statusList.map(s => `<option value="${s}">${s}</option>`).join('');
+        }
+
+        // Modal para criação de contatos
+        function openAddModal() {
+            document.getElementById('contact-form').reset();
+            document.getElementById('edit-id').value = '';
+            document.getElementById('ai-import-raw-text').value = '';
+            document.getElementById('modal-title').innerHTML = `
+                <i data-lucide="user-plus" class="w-5 h-5 mr-2 inline-block"></i>
+                <span>Novo Registro de Contato</span>
+            `;
+            
+            const modal = document.getElementById('contact-modal');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                document.getElementById('modal-container').classList.remove('scale-95');
+                document.getElementById('modal-container').classList.add('scale-100');
+                lucide.createIcons();
+            }, 50);
+        }
+
+        function closeModal() {
+            document.getElementById('modal-container').classList.remove('scale-100');
+            document.getElementById('modal-container').classList.add('scale-95');
+            setTimeout(() => {
+                document.getElementById('contact-modal').classList.add('hidden');
+            }, 150);
+        }
+
+        // Modal de confirmação seguro
+        let deleteTargetId = null;
+        function deleteContact(id) {
+            deleteTargetId = id;
+            document.getElementById('confirm-modal-message').innerText = `Deseja remover permanentemente o registro de ID ${id} da tbContatos?`;
+            const modal = document.getElementById('confirm-modal');
+            modal.classList.remove('hidden');
+            document.getElementById('confirm-modal-btn').onclick = executeDelete;
+            setTimeout(() => {
+                document.getElementById('confirm-modal-container').classList.remove('scale-95');
+                document.getElementById('confirm-modal-container').classList.add('scale-100');
+                lucide.createIcons();
+            }, 50);
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('confirm-modal-container').classList.remove('scale-100');
+            document.getElementById('confirm-modal-container').classList.add('scale-95');
+            setTimeout(() => {
+                document.getElementById('confirm-modal').classList.add('hidden');
+            }, 150);
+        }
+
+        function executeDelete() {
+            if (deleteTargetId) {
+                contacts = contacts.filter(c => c.id !== deleteTargetId);
+                showToast("Registro excluído!", "bg-rose-600");
+                renderBaseTable();
+                renderConsulta();
+                renderDashboard();
+                closeConfirmModal();
+            }
+        }
+
+        // Salvar Contato Manual
+        function saveContact(e) {
+            e.preventDefault();
+            
+            const id = document.getElementById('edit-id').value;
+            const concession = document.getElementById('modal-concessao').value;
+            const area = document.getElementById('modal-area').value;
+            const functionVal = document.getElementById('modal-funcao').value;
+            const name = document.getElementById('modal-nome').value;
+            const email = document.getElementById('modal-email').value;
+            const manager = document.getElementById('modal-gestor').value;
+            const observation = document.getElementById('modal-observacao').value;
+            const status = document.getElementById('modal-status').value;
+
+            if (id) {
+                const index = contacts.findIndex(c => c.id === id);
+                if (index > -1) {
+                    contacts[index] = { id, concession, area, function: functionVal, name, email, manager, observation, status };
+                    showToast("Registro atualizado!");
+                }
+            } else {
+                const nextIdNum = contacts.length > 0 ? Math.max(...contacts.map(c => parseInt(c.id.replace('GCC', '')))) + 1 : 1;
+                const newId = `GCC${nextIdNum.toString().padStart(4, '0')}`;
+                
+                contacts.push({ id: newId, concession: concession, area: area, function: functionVal, name: name, email: email, manager: manager, observation: observation, status: status });
+                showToast("Novo registro inserido!");
+            }
+
+            closeModal();
+            renderBaseTable();
+            renderConsulta();
+            renderDashboard();
+        }
+
+        // Editar Registro
+        function editContact(id) {
+            const item = contacts.find(c => c.id === id);
+            if (!item) return;
+
+            document.getElementById('edit-id').value = item.id;
+            document.getElementById('modal-concessao').value = item.concession;
+            document.getElementById('modal-area').value = item.area;
+            document.getElementById('modal-funcao').value = item.function;
+            document.getElementById('modal-nome').value = item.name;
+            document.getElementById('modal-email').value = item.email || '';
+            document.getElementById('modal-gestor').value = item.manager || '';
+            document.getElementById('modal-observacao').value = item.observation || '';
+            document.getElementById('modal-status').value = item.status;
+
+            document.getElementById('modal-title').innerHTML = `
+                <i data-lucide="edit" class="w-5 h-5 mr-2 inline-block" stroke-width="1.5"></i>
+                <span>Editar Registro (${id})</span>
+            `;
+            
+            const modal = document.getElementById('contact-modal');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                document.getElementById('modal-container').classList.remove('scale-95');
+                document.getElementById('modal-container').classList.add('scale-100');
+                lucide.createIcons();
+            }, 50);
+        }
+
+        // Gráficos executivos do Dashboard
+        let chartConcession = null;
+        let chartArea = null;
+
+        function renderDashboard() {
+            document.getElementById('kpi-contacts').innerText = contacts.length;
+            document.getElementById('kpi-conconcessions', document.getElementById('kpi-concessions') ? document.getElementById('kpi-concessions').innerText = concessionsList.length : null);
+            document.getElementById('kpi-areas').innerText = areasList.length;
+            document.getElementById('kpi-emails').innerText = contacts.filter(c => c.email && c.email.includes('@')).length;
+
+            const emptyEmails = contacts.filter(c => !c.email).length;
+            const emptyManagers = contacts.filter(c => !c.manager).length;
+            const inactiveContacts = contacts.filter(c => c.status !== 'Ativo').length;
+
+            document.getElementById('health-empty-emails').innerText = emptyEmails;
+            document.getElementById('health-empty-managers').innerText = emptyManagers;
+            document.getElementById('health-inactive-contacts').innerText = inactiveContacts;
+
+            const concessionCounts = concessionsList.map(conc => {
+                return contacts.filter(c => c.concession === conc).length;
+            });
+
+            const areaCounts = areasList.map(area => {
+                return contacts.filter(c => c.area === area).length;
+            });
+
+            if (chartConcession) chartConcession.destroy();
+            if (chartArea) chartArea.destroy();
+
+            const ctxConc = document.getElementById('chart-concession').getContext('2d');
+            chartConcession = new Chart(ctxConc, {
+                type: 'bar',
+                data: {
+                    labels: concessionsList,
+                    datasets: [{
+                        label: 'Contactos',
+                        data: concessionCounts,
+                        backgroundColor: '#008542',
+                        borderColor: '#0b3c25',
+                        borderWidth: 1,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+
+            const ctxArea = document.getElementById('chart-area').getContext('2d');
+            chartArea = new Chart(ctxArea, {
+                type: 'bar',
+                data: {
+                    labels: areasList,
+                    datasets: [{
+                        label: 'Contactos',
+                        data: areaCounts,
+                        backgroundColor: '#FF9E1B',
+                        borderColor: '#d97706',
+                        borderWidth: 1,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { beginAtZero: true, grid: { color: '#f1f5f9' } },
+                        y: { grid: { display: false } }
+                    }
+                }
+            });
+            setTimeout(() => lucide.createIcons(), 20);
+        }
+
+        // ==========================================
+        // ✨ CONEXÕES E INTEGRAÇÕES COM A API DO GEMINI
+        // ==========================================
+
+        // 1. ✨ REDATOR DE MALA DIRETA
+        async function generateEmailWithAI() {
+            const activeFilteredContacts = contacts.filter(item => {
+                return activeFilters.concessions.includes(item.concession) &&
+                       activeFilters.areas.includes(item.area) &&
+                       activeFilters.functions.includes(item.function) &&
+                       activeFilters.status.includes(item.status);
+            });
+
+            if (activeFilteredContacts.length === 0) {
+                showToast("Triagem vazia! Filtre destinatários primeiro.", "bg-rose-600");
+                return;
+            }
+
+            const btn = document.getElementById('btn-generate-email-ai');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = `
+                <svg class="animate-spin h-4 w-4 mr-2 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                <span>✨ Processando com IA do Gemini...</span>
+            `;
+
+            const selectedTemplate = document.getElementById('ai-email-template').value;
+            const selectedContext = document.getElementById('ai-email-context').value || "Pautas operacionais e administrativas";
+
+            const targetConcessions = [...new Set(activeFilteredContacts.map(c => c.concession))].join(', ');
+            const targetAreas = [...new Set(activeFilteredContacts.map(c => c.area))].join(', ');
+            const sampleNames = activeFilteredContacts.slice(0, 5).map(c => c.name).join(', ') + (activeFilteredContacts.length > 5 ? ' e outros colaboradores' : '');
+
+            const systemPrompt = `Você é o Redator de Mala Direta oficial da EcoRodovias SP. Seu papel é escrever de forma impecável, estruturada, clara e em tom formal.`;
+            const userPrompt = `
+                Redija um comunicado oficial profissional usando o "Redator de Mala Direta" de acordo com a pauta: "${selectedContext}".
+                O modelo de e-mail escolhido é: "${selectedTemplate}".
+                A lista de destinatários pertence às Concessionárias [${targetConcessions}] dos setores [${targetAreas}].
+                Alguns dos nomes para referenciar de forma indireta ou contextualizar: ${sampleNames}.
+                
+                Retorne estritamente um JSON no seguinte padrão:
+                {
+                    "subject": "Assunto do comunicado",
+                    "body": "Corpo estruturado com quebras de linha normais, saudações formais adequadas, contextualização e assinatura padrão EcoRodovias."
+                }
+            `;
+
+            try {
+                const response = await callGeminiAPI({
+                    contents: [{ parts: [{ text: userPrompt }] }],
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: {
+                            type: "OBJECT",
+                            properties: {
+                                subject: { type: "STRING" },
+                                body: { type: "STRING" }
+                            },
+                            required: ["subject", "body"]
+                        }
+                    }
+                }, systemPrompt);
+
+                const data = JSON.parse(response.candidates[0].content.parts[0].text);
+                
+                document.getElementById('ai-email-subject').value = data.subject;
+                document.getElementById('ai-email-body').value = data.body;
+                document.getElementById('ai-email-result-container').classList.remove('hidden');
+                
+                // Atualizar o prompt do Copilot de forma síncrona
+                updateCopilotPrompt(data.subject, data.body);
+                showToast("Mala Direta gerada com sucesso!");
+            } catch (err) {
+                console.warn("Gemini API indisponível, aplicando estrutura padronizada Inov offline...", err);
+                applyStandardizedTemplate();
+                showToast("Estrutura padronizada aplicada com sucesso (modo local)!");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                setTimeout(() => lucide.createIcons(), 30);
+            }
+        }
+
+        // Função para atualizar dinamicamente o prompt integrado do Copilot M365
+        function updateCopilotPrompt(subject = "", body = "") {
+            const activeFilteredContacts = contacts.filter(item => {
+                return activeFilters.concessions.includes(item.concession) &&
+                       activeFilters.areas.includes(item.area) &&
+                       activeFilters.functions.includes(item.function) &&
+                       activeFilters.status.includes(item.status);
+            });
+            const emails = [...new Set(activeFilteredContacts.filter(c => c.email).map(c => c.email))].join('; ');
+            const concessions = [...new Set(activeFilteredContacts.map(c => c.concession))].join(', ');
+            
+            const promptText = `Atue como um assistente corporativo para a concessionária EcoRodovias SP. Preciso disparar uma Mala Direta para os seguintes contatos em BCC: [${emails || 'Filtre contatos para listar os e-mails'}]. A pauta aborda: "${document.getElementById('ai-email-context').value || 'Assuntos corporativos de rotina'}". O assunto do comunicado oficial é: "${subject || 'GCC | Comunicado Operacional'}". O rascunho base é: "${body.substring(0, 150) || 'Rascunho de e-mail corporativo'}...". Por favor, revise o tom, garanta que a linguagem esteja polida e que as regras de segurança rodoviária de São Paulo sejam indiretamente estimuladas. Retorne a versão final otimizada para envio.`;
+            
+            const box = document.getElementById('copilot-prompt-preview');
+            box.innerText = promptText;
+            box.dataset.fullPrompt = `Atue como um assistente corporativo para a concessionária EcoRodovias SP. Preciso disparar uma Mala Direta para os seguintes contatos em BCC: [${emails}]. A pauta aborda: "${document.getElementById('ai-email-context').value || 'Assuntos corporativos de rotina'}". O assunto do comunicado oficial é: "${subject || 'GCC | Comunicado Operacional'}". O rascunho base é: "${body || 'Rascunho de e-mail corporativo'}". Por favor, revise o tom, garanta que a linguagem esteja polida e que as regras de segurança rodoviária de São Paulo sejam indiretamente estimuladas. Retorne a versão final otimizada para envio.`;
+        }
+
+        // Monitorar e vincular os filtros de mudança para atualizar o Copilot Prompt
+        function updateCopilotPromptFromCurrentState() {
+            const subject = document.getElementById('ai-email-subject').value || "";
+            const body = document.getElementById('ai-email-body').value || "";
+            updateCopilotPrompt(subject, body);
+        }
+
+        // 2. ✨ PARSER INDIVIDUAL DE CONTATOS NO MODAL
+        async function parseContactWithAI() {
+            const rawText = document.getElementById('ai-import-raw-text').value;
+            if (!rawText.trim()) {
+                showToast("Insira algum texto para extração!", "bg-rose-600");
+                return;
+            }
+
+            const btn = document.getElementById('btn-import-ai');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = `
+                <svg class="animate-spin h-4 w-4 mr-2 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                <span>✨ Processando dados...</span>
+            `;
+
+            const systemPrompt = `Você é um mapeador de dados estruturados corporativos. Extraia informações de assinaturas de e-mail de colaboradores da EcoRodovias, normalizando as seções e categorias de acordo com as restrições fornecidas.`;
+            const userPrompt = `
+                Interprete o texto bruto a seguir e extraia as informações de contato mapeadas.
+                Texto: "${rawText}"
+
+                Diretrizes de categorias do banco de dados tbContatos:
+                - concession: Deve pertencer estritamente a um destes valores: "Imigrantes", "Leste Paulista", "Econoroeste", "Raposo Castello". Corrija variações de digitação de forma inteligente.
+                - area: Deve pertencer estritamente a um destes valores: "GEN", "GAU", "CSU", "RH", "AJL", "DTC", "COM", "DAM".
+                - function: Deve pertencer estritamente a um destes valores: "Ponto Focal", "Integrante", "Grupo de E-mail", "Especialista".
+                - status: Deve pertencer estritamente a um destes valores: "Ativo", "Férias", "Licença", "Substituição", "Desligado". Se não for mencionado, assuma "Ativo".
+                - name: Nome do colaborador.
+                - email: E-mail de formato corporativo.
+                - manager: Gestor citado.
+                - observation: Notas adicionais.
+
+                Retorne estritamente um JSON estruturado:
+                {
+                    "concession": "Imigrantes | Leste Paulista | Econoroeste | Raposo Castello",
+                    "area": "GEN | GAU | CSU | RH | AJL | DTC | COM | DAM",
+                    "function": "Ponto Focal | Integrante | Grupo de E-mail | Especialista",
+                    "name": "Nome Completo",
+                    "email": "email@corporativo.com",
+                    "manager": "Nome do Gestor",
+                    "observation": "Notas se existirem",
+                    "status": "Ativo | Férias | Licença | Substituição | Desligado"
+                }
+            `;
+
+            try {
+                const response = await callGeminiAPI({
+                    contents: [{ parts: [{ text: userPrompt }] }],
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: {
+                            type: "OBJECT",
+                            properties: {
+                                concession: { type: "STRING" },
+                                area: { type: "STRING" },
+                                function: { type: "STRING" },
+                                name: { type: "STRING" },
+                                email: { type: "STRING" },
+                                manager: { type: "STRING" },
+                                observation: { type: "STRING" },
+                                status: { type: "STRING" }
+                            },
+                            required: ["name"]
+                        }
+                    }
+                }, systemPrompt);
+
+                const data = JSON.parse(response.candidates[0].content.parts[0].text);
+
+                if (data.concession && concessionsList.includes(data.concession)) document.getElementById('modal-concessao').value = data.concession;
+                if (data.area && areasList.includes(data.area)) document.getElementById('modal-area').value = data.area;
+                if (data.function && functionsList.includes(data.function)) document.getElementById('modal-funcao').value = data.function;
+                if (data.status && statusList.includes(data.status)) document.getElementById('modal-status').value = data.status;
+                if (data.name) document.getElementById('modal-nome').value = data.name;
+                if (data.email) document.getElementById('modal-email').value = data.email;
+                if (data.manager) document.getElementById('modal-gestor').value = data.manager;
+                if (data.observation) document.getElementById('modal-observacao').value = data.observation;
+
+                showToast("Dados mapeados no formulário!");
+            } catch (err) {
+                showToast(err.message, "bg-rose-600");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                setTimeout(() => lucide.createIcons(), 30);
+            }
+        }
+
+        // 3. ✨ NOVO RECURSO: CARGA E PARSER DE DOCUMENTOS EM LOTE (MASSIVO) + FORMULAÇÃO EM UMA ETAPA SÓ
+        async function parseBatchWithAI() {
+            const rawText = document.getElementById('ai-batch-raw-text').value;
+            if (!rawText.trim()) {
+                showToast("Cole ou faça upload de um documento primeiro!", "bg-rose-600");
+                return;
+            }
+
+            const btn = document.getElementById('btn-process-batch-ai');
+            const originalText = btn.innerHTML;
+            const togetherCheckbox = document.getElementById('ai-batch-formulate-together').checked;
+
+            btn.disabled = true;
+            btn.innerHTML = `
+                <svg class="animate-spin h-4 w-4 mr-2 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                <span>✨ Gemini processando e formulando lote...</span>
+            `;
+
+            const systemPrompt = `Você é um motor de ingestão de dados em lote de alta performance integrado ao sistema da EcoRodovias SP. Seu papel é ler listagens brutas, planilhas copiadas ou tabelas em CSV/TXT e convertê-las em objetos estruturados de contatos e, se solicitado, formular um comunicado oficial baseado no teor do arquivo.`;
+            
+            let userPrompt = `
+                Processe a listagem/relatório a seguir, extraia TODOS os contatos válidos identificados no documento e estruture-os.
+                Listagem: "${rawText}"
+
+                Especificações de Normalização de Valores:
+                - concession: Deve pertencer estritamente a um destes valores: "Imigrantes", "Leste Paulista", "Econoroeste", "Raposo Castello".
+                - area: Deve pertencer estritamente a um destes: "GEN", "GAU", "CSU", "RH", "AJL", "DTC", "COM", "DAM".
+                - function: Deve ser "Ponto Focal", "Integrante", "Grupo de E-mail" ou "Especialista".
+                - status: Deve ser "Ativo", "Férias", "Licença", "Substituição" ou "Desligado". Se ausente, preencher como "Ativo".
+                - name: Nome do contato identificado.
+                - email: E-mail limpo sem notas extras anexadas.
+                - manager: Nome do gestor de área correspondente (padronizado com nome corporativo limpo).
+                - observation: Quaisquer anotações adicionais do registro.
+            `;
+
+            if (togetherCheckbox) {
+                userPrompt += `
+                Além disso, analise o teor principal, finalidade e assunto desse documento. Formule uma proposta completa de e-mail (Mala Direta) baseada estritamente no assunto tratado nesse arquivo de forma clara e formal.
+
+                Retorne obrigatoriamente um objeto JSON com duas propriedades:
+                {
+                    "contacts": [
+                        {
+                            "concession": "Concessão Válida",
+                            "area": "Área Válida",
+                            "function": "Função Válida",
+                            "name": "Nome Completo",
+                            "email": "email@ecovias.com.br",
+                            "manager": "Nome do Gestor",
+                            "observation": "Notas adicionais",
+                            "status": "Ativo"
+                        }
+                    ],
+                    "formulatedMail": {
+                        "subject": "Assunto do comunicado extraído do teor do documento",
+                        "body": "Corpo de e-mail profissional formatado detalhando os pontos chaves do documento técnico."
+                    }
+                }
+                `;
+            } else {
+                userPrompt += `
+                Retorne obrigatoriamente um objeto JSON com a seguinte estrutura:
+                {
+                    "contacts": [
+                        {
+                            "concession": "Concessão Válida",
+                            "area": "Área Válida",
+                            "function": "Função Válida",
+                            "name": "Nome Completo",
+                            "email": "email@ecovias.com.br",
+                            "manager": "Nome do Gestor",
+                            "observation": "Notas adicionais",
+                            "status": "Ativo"
+                        }
+                    ]
+                }
+                `;
+            }
+
+            // Mapeamento do esquema JSON esperado para validação nativa
+            const responseSchema = {
+                type: "OBJECT",
+                properties: {
+                    contacts: {
+                        type: "ARRAY",
+                        items: {
+                            type: "OBJECT",
+                            properties: {
+                                concession: { type: "STRING" },
+                                area: { type: "STRING" },
+                                function: { type: "STRING" },
+                                name: { type: "STRING" },
+                                email: { type: "STRING" },
+                                manager: { type: "STRING" },
+                                observation: { type: "STRING" },
+                                status: { type: "STRING" }
+                            },
+                            required: ["name"]
+                        }
+                    }
+                },
+                required: ["contacts"]
+            };
+
+            if (togetherCheckbox) {
+                responseSchema.properties.formulatedMail = {
+                    type: "OBJECT",
+                    properties: {
+                        subject: { type: "STRING" },
+                        body: { type: "STRING" }
+                    },
+                    required: ["subject", "body"]
+                };
+                responseSchema.required.push("formulatedMail");
+            }
+
+            try {
+                const response = await callGeminiAPI({
+                    contents: [{ parts: [{ text: userPrompt }] }],
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: responseSchema
+                    }
+                }, systemPrompt);
+
+                const data = JSON.parse(response.candidates[0].content.parts[0].text);
+                importedBatchContacts = data.contacts;
+                renderBatchReviewTable();
+
+                if (togetherCheckbox && data.formulatedMail) {
+                    // Preencher o Redator de Mala Direta de forma automática
+                    document.getElementById('ai-email-subject').value = data.formulatedMail.subject;
+                    document.getElementById('ai-email-body').value = data.formulatedMail.body;
+                    document.getElementById('ai-email-result-container').classList.remove('hidden');
+                    
+                    // Atualizar também o prompt do Copilot de forma automática
+                    updateCopilotPrompt(data.formulatedMail.subject, data.formulatedMail.body);
+                    showToast("Contatos extraídos e Mala Direta formulada de uma só vez!");
+                } else {
+                    showToast("Lote processado! Revise a lista de aprovação no painel.");
+                }
+                
+            } catch (err) {
+                console.warn("Gemini API indisponível, acionando Parser Local Determinístico...", err);
+                const localContacts = parseContactsLocally(rawText);
+                if (localContacts.length > 0) {
+                    importedBatchContacts = localContacts;
+                    renderBatchReviewTable();
+                    if (togetherCheckbox) {
+                        applyStandardizedTemplate();
+                        showToast(`Extraídos ${localContacts.length} contatos e formulada estrutura de e-mail via motor local Inov!`);
+                    } else {
+                        showToast(`Extraídos ${localContacts.length} contatos via motor local Inov!`);
+                    }
+                } else {
+                    showToast("Nenhum contato encontrado no documento inserido. Verifique o texto.", "bg-rose-600");
+                }
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                setTimeout(() => {
+                    lucide.createIcons();
+                }, 30);
+            }
+        }
+
+        // Renderiza a tabela de revisão temporária do lote antes da persistência final
+        function renderBatchReviewTable() {
+            const container = document.getElementById('ai-batch-results-container');
+            const tbody = document.getElementById('batch-results-rows');
+            
+            if (importedBatchContacts.length === 0) {
+                container.classList.add('hidden');
+                return;
+            }
+
+            tbody.innerHTML = importedBatchContacts.map((item, index) => `
+                <tr class="hover:bg-slate-50 transition-all border-b border-slate-100">
+                    <td class="py-2.5 px-4 font-semibold text-[#008542]">${item.concession || '-'}</td>
+                    <td class="py-2.5 px-4"><span class="bg-slate-100 text-slate-800 text-xs font-bold px-2 py-0.5 rounded">${item.area || '-'}</span></td>
+                    <td class="py-2.5 px-4 text-slate-600">${item.function || '-'}</td>
+                    <td class="py-2.5 px-4 font-semibold text-slate-800">${item.name || '-'}</td>
+                    <td class="py-2.5 px-4 text-blue-600 font-mono text-xs">${item.email || '-'}</td>
+                    <td class="py-2.5 px-4 text-slate-600">${item.manager || '-'}</td>
+                    <td class="py-2.5 px-4 text-xs text-slate-500">${item.observation || '-'}</td>
+                    <td class="py-2.5 px-4">
+                        <span class="inline-block px-2 py-0.5 text-xs font-bold rounded-full ${item.status === 'Ativo' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}">
+                            ${item.status || 'Ativo'}
+                        </span>
+                    </td>
+                </tr>
+            `).join('');
+
+            container.classList.remove('hidden');
+            setTimeout(() => lucide.createIcons(), 20);
+        }
+
+        function discardBatch() {
+            importedBatchContacts = [];
+            document.getElementById('ai-batch-results-container').classList.add('hidden');
+            document.getElementById('ai-batch-raw-text').value = '';
+            showToast("Lote descartado com sucesso!", "bg-rose-600");
+        }
+
+        // Integra os contatos auditados da IA no banco de dados ativo
+        function commitBatchToDatabase() {
+            if (importedBatchContacts.length === 0) return;
+
+            let startIdNum = contacts.length > 0 ? Math.max(...contacts.map(c => parseInt(c.id.replace('GCC', '')))) + 1 : 1;
+
+            importedBatchContacts.forEach((item) => {
+                const newId = `GCC${startIdNum.toString().padStart(4, '0')}`;
+                contacts.push({
+                    id: newId,
+                    concession: item.concession || 'Imigrantes',
+                    area: item.area || 'GEN',
+                    function: item.function || 'Integrante',
+                    name: item.name,
+                    email: item.email || '',
+                    manager: item.manager || '',
+                    observation: item.observation || '',
+                    status: item.status || 'Ativo'
+                });
+                startIdNum++;
+            });
+
+            const countAdded = importedBatchContacts.length;
+            discardBatch(); // Limpa painel e cache temporário
+            
+            renderBaseTable();
+            renderConsulta();
+            renderDashboard();
+            showToast(`Sucesso! ${countAdded} novos registros integrados à tbContatos.`);
+            switchTab('base');
+        }
+
+        // 4. ✨ DIAGNÓSTICO E PARECER DE AUDITORIA DE GOVERNANÇA (DASHBOARD)
+        async function runGovernanceAudit() {
+            const btn = document.getElementById('btn-run-audit-ai');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = `
+                <svg class="animate-spin h-4 w-4 mr-2 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                <span>✨ Processando parecer analítico...</span>
+            `;
+
+            const total = contacts.length;
+            const concessions = concessionsList.map(c => ({ name: c, count: contacts.filter(item => item.concession === c).length }));
+            const areas = areasList.map(a => ({ name: a, count: contacts.filter(item => item.area === a).length }));
+            const emptyEmails = contacts.filter(c => !c.email).length;
+            const emptyManagers = contacts.filter(c => !c.manager).length;
+            const inactive = contacts.filter(c => c.status !== 'Ativo').length;
+
+            const systemPrompt = "Você é um auditor sênior de governança de dados e canais de comunicação da EcoRodovias SP. Seu papel é emitir um parecer profissional, crítico, polido e propositivo.";
+            const userPrompt = `
+                Faça uma análise crítica do nosso banco de dados de contatos e canais de mala direta GCC.
+                Métricas estruturais da base de dados:
+                - Total Geral de Contatos: ${total}
+                - Contatos por Concessão: ${JSON.stringify(concessions)}
+                - Contatos por Área: ${JSON.stringify(areas)}
+                - Contatos com E-mail em branco: ${emptyEmails}
+                - Contatos com Gestor em branco: ${emptyManagers}
+                - Contatos inativos/férias/licença: ${inactive}
+
+                Escreva um parecer de auditoria corporativo contendo:
+                1. Avaliação geral de integridade (higienização de dados).
+                2. Gaps e riscos operacionais (concessões com cobertura fraca, ausência de gestores nos registros).
+                3. Três ações táticas recomendadas para os administradores do sistema.
+            `;
+
+            try {
+                const response = await callGeminiAPI({
+                    contents: [{ parts: [{ text: userPrompt }] }]
+                }, systemPrompt);
+
+                const outputDiv = document.getElementById('ai-audit-output');
+                let formattedText = response.candidates[0].content.parts[0].text
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/\n\n/g, '<br><br>')
+                    .replace(/\n/g, '<br>');
+
+                outputDiv.innerHTML = `<div class="prose prose-invert max-w-none text-slate-300 font-sans text-xs">${formattedText}</div>`;
+                outputDiv.classList.remove('hidden');
+                
+                showToast("Parecer executivo emitido!");
+            } catch (err) {
+                showToast(err.message, "bg-rose-600");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                setTimeout(() => lucide.createIcons(), 30);
+            }
+        }
+    </script>
+</body>
+</html>

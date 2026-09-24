@@ -1,0 +1,54 @@
+\documentclass[11pt, a4paper]{article}
+
+% --- UNIVERSAL PREAMBLE BLOCK ---
+\usepackage[a4paper, top=2.5cm, bottom=2.5cm, left=2cm, right=2cm]{geometry}
+\usepackage{fontspec}
+
+\usepackage[portuguese, bidi=basic, provide=*]{babel}
+
+\babelprovide[import, onchar=ids fonts]{portuguese}
+\babelprovide[import, onchar=ids fonts]{english}
+
+% Set default/Latin font to Sans Serif in the main (rm) slot
+\babelfont{rm}{Noto Sans}
+% Assign a specific font for Portuguese text
+\babelfont[portuguese]{rm}{Noto Sans}
+
+% Add because main language is not English
+\usepackage{enumitem}
+\setlist[itemize]{label=-}
+
+% --- ADDITIONAL PACKAGES ---
+\usepackage{booktabs}
+\usepackage{tabularx}
+
+\begin{document}
+
+\begin{center}
+    \Large \textbf{Análise de Variáveis Quantitativas para Tomada de Decisão} \\
+    \vspace{0.2cm}
+    \large \textit{Estudo de Caso: Controladoria Digital}
+\end{center}
+\vspace{1cm}
+
+\renewcommand{\arraystretch}{1.8} % Aumenta o espaçamento entre as linhas da tabela
+\noindent
+\begin{tabularx}{\textwidth}{@{} l >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X @{}}
+\toprule
+\textbf{Cenário} & \textbf{Variáveis quantitativas} & \textbf{Como essa variável auxilia a tomada de decisão?} \\
+\midrule
+\textbf{Operacional} & 
+Horas trabalhadas por projeto; Taxa de cumprimento de prazos (SLA de atendimento). & 
+Guia as lideranças na distribuição diária das tarefas. Permite identificar gargalos na rotina da equipa, realocar analistas sobrecarregados e garantir que as obrigações diárias dos clientes sejam entregues a tempo e sem ocorrência de multas. \\
+\midrule
+\textbf{Tático} & 
+Margem de lucro segmentada por tipo de serviço; Índice de inadimplência (percentagem de recebíveis em atraso). & 
+Permite aos coordenadores avaliar o que está a funcionar a médio prazo. Ajuda a reestruturar réguas de cobrança, a otimizar processos intermédios de entrega e a direcionar os esforços comerciais para os serviços que apresentam melhor rentabilidade e menor atrito. \\
+\midrule
+\textbf{Estratégico} & 
+Custo de Aquisição de Clientes (CAC); Lifetime Value (LTV); Taxa de evasão da carteira (Churn rate). & 
+Fundamenta as decisões de longo prazo da direção sobre o rumo do negócio. Indica, de forma clara, se a empresa deve investir em novas tecnologias, alterar a estrutura global de preços ou focar a sua expansão em novos nichos de mercado. \\
+\bottomrule
+\end{tabularx}
+
+\end{document}

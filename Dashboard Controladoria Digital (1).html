@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Protótipo - Dashboard Controladoria Digital</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        /* Custom scrollbar for a cleaner look */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-slate-50 flex h-screen overflow-hidden text-slate-800">
+
+    <!-- Sidebar de Filtros -->
+    <aside class="w-64 bg-slate-900 text-white p-6 flex flex-col hidden md:flex flex-shrink-0 shadow-xl z-10">
+        <div class="flex items-center gap-3 mb-10">
+            <div class="bg-blue-500 p-2 rounded-lg">
+                <i class="fas fa-chart-pie text-xl text-white"></i>
+            </div>
+            <h1 class="text-lg font-bold tracking-wide">BI Controladoria</h1>
+        </div>
+        
+        <h2 class="text-xs uppercase text-slate-400 font-bold mb-5 tracking-wider">Filtros Dinâmicos</h2>
+        
+        <div class="space-y-5">
+            <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-2">Período de Análise</label>
+                <div class="relative">
+                    <select class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-sm appearance-none focus:outline-none focus:border-blue-500">
+                        <option>Este Mês (Set/2026)</option>
+                        <option>Mês Anterior</option>
+                        <option>Ano Atual (YTD)</option>
+                    </select>
+                    <i class="fas fa-chevron-down absolute right-3 top-3.5 text-xs text-slate-400 pointer-events-none"></i>
+                </div>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-2">Tipo de Serviço</label>
+                <div class="relative">
+                    <select class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-sm appearance-none focus:outline-none focus:border-blue-500">
+                        <option>Todos os Serviços</option>
+                        <option>Gestão Financeira</option>
+                        <option>Consultoria Tributária</option>
+                        <option>Auditoria</option>
+                    </select>
+                    <i class="fas fa-chevron-down absolute right-3 top-3.5 text-xs text-slate-400 pointer-events-none"></i>
+                </div>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-2">Equipa Responsável</label>
+                <div class="relative">
+                    <select class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-sm appearance-none focus:outline-none focus:border-blue-500">
+                        <option>Visão Global da Empresa</option>
+                        <option>Time Operacional A</option>
+                        <option>Time Comercial</option>
+                    </select>
+                    <i class="fas fa-chevron-down absolute right-3 top-3.5 text-xs text-slate-400 pointer-events-none"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-auto pt-6 border-t border-slate-800">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center">
+                    <i class="fas fa-user text-sm text-slate-300"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-semibold">Gestor Administrativo</p>
+                    <p class="text-xs text-slate-400">Controladoria Digital</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Área Principal -->
+    <main class="flex-1 p-6 md:p-8 overflow-y-auto">
+        <header class="flex flex-col md:flex-row md:justify-between md:items-center mb-8 gap-4">
+            <div>
+                <h2 class="text-2xl font-bold text-slate-900">Painel de Decisão Integrado</h2>
+                <p class="text-sm text-slate-500 mt-1">Análise de desempenho quantitativo e tomada de decisão estratégica.</p>
+            </div>
+            <button class="bg-blue-600 hover:bg-blue-700 transition-colors text-white px-5 py-2.5 rounded-lg shadow-sm text-sm font-semibold flex items-center gap-2 w-fit">
+                <i class="fas fa-download"></i> Exportar Relatório PDF
+            </button>
+        </header>
+
+        <!-- NÍVEL ESTRATÉGICO -->
+        <section class="mb-8">
+            <h3 class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4 flex items-center gap-2">
+                <i class="fas fa-chess-king text-amber-500"></i> Nível Estratégico (Diretoria)
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <!-- Card 1 -->
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 border-l-4 border-l-blue-500 relative overflow-hidden group hover:shadow-md transition-shadow">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 text-blue-500 text-4xl group-hover:scale-110 transition-transform"><i class="fas fa-chart-line"></i></div>
+                    <p class="text-sm text-slate-500 font-medium">Margem de Lucro Operacional</p>
+                    <div class="flex items-end justify-between mt-3 relative z-10">
+                        <p class="text-3xl font-bold text-slate-800">24.5%</p>
+                        <div class="flex flex-col items-end">
+                            <span class="bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded-full flex items-center gap-1">
+                                <i class="fas fa-arrow-up"></i> 2.1%
+                            </span>
+                            <span class="text-[10px] text-slate-400 mt-1">vs mês anterior</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Card 2 -->
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 border-l-4 border-l-indigo-500 relative overflow-hidden group hover:shadow-md transition-shadow">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 text-indigo-500 text-4xl group-hover:scale-110 transition-transform"><i class="fas fa-balance-scale"></i></div>
+                    <p class="text-sm text-slate-500 font-medium">Relação LTV / CAC</p>
+                    <div class="flex items-end justify-between mt-3 relative z-10">
+                        <p class="text-3xl font-bold text-slate-800">4.2x</p>
+                        <div class="flex flex-col items-end">
+                            <span class="bg-indigo-50 text-indigo-700 text-xs font-bold px-2 py-1 rounded-full border border-indigo-100">
+                                Excelente
+                            </span>
+                            <span class="text-[10px] text-slate-400 mt-1">Meta: > 3.0x</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Card 3 -->
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 border-l-4 border-l-red-500 relative overflow-hidden group hover:shadow-md transition-shadow">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 text-red-500 text-4xl group-hover:scale-110 transition-transform"><i class="fas fa-user-minus"></i></div>
+                    <p class="text-sm text-slate-500 font-medium">Taxa de Evasão (Churn Rate)</p>
+                    <div class="flex items-end justify-between mt-3 relative z-10">
+                        <p class="text-3xl font-bold text-slate-800">1.8%</p>
+                        <div class="flex flex-col items-end">
+                            <span class="bg-red-100 text-red-700 text-xs font-bold px-2 py-1 rounded-full flex items-center gap-1">
+                                <i class="fas fa-arrow-up"></i> 0.3%
+                            </span>
+                            <span class="text-[10px] text-slate-400 mt-1">Acima da meta</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- NÍVEL TÁTICO -->
+        <section class="mb-8">
+            <h3 class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4 flex items-center gap-2">
+                <i class="fas fa-bullseye text-indigo-500"></i> Nível Tático (Comercial / Coordenação)
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <!-- Gráfico 1: Funil -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <div class="flex justify-between items-center mb-5">
+                        <p class="text-base font-semibold text-slate-800">Funil de Vendas e Conversão</p>
+                        <button class="text-slate-400 hover:text-blue-500"><i class="fas fa-ellipsis-h"></i></button>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="relative">
+                            <div class="flex justify-between text-sm font-medium mb-1.5">
+                                <span class="text-slate-700">1. Leads Gerados</span>
+                                <span class="text-slate-900">1.200</span>
+                            </div>
+                            <div class="w-full bg-slate-100 rounded-full h-3">
+                                <div class="bg-indigo-600 h-3 rounded-full" style="width: 100%"></div>
+                            </div>
+                        </div>
+                        <div class="relative">
+                            <div class="flex justify-between text-sm font-medium mb-1.5">
+                                <span class="text-slate-700">2. Propostas Enviadas</span>
+                                <span class="text-slate-900">450 <span class="text-xs text-slate-400 font-normal ml-1">(37.5%)</span></span>
+                            </div>
+                            <div class="w-full bg-slate-100 rounded-full h-3">
+                                <div class="bg-indigo-400 h-3 rounded-full" style="width: 37.5%"></div>
+                            </div>
+                        </div>
+                        <div class="relative">
+                            <div class="flex justify-between text-sm font-medium mb-1.5">
+                                <span class="text-slate-700">3. Contratos Fechados</span>
+                                <span class="text-slate-900">85 <span class="text-xs text-slate-400 font-normal ml-1">(18.8%)</span></span>
+                            </div>
+                            <div class="w-full bg-slate-100 rounded-full h-3">
+                                <div class="bg-indigo-300 h-3 rounded-full" style="width: 18.8%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Gráfico 2: CAC -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col">
+                    <div class="flex justify-between items-center mb-5">
+                        <p class="text-base font-semibold text-slate-800">Custo de Aquisição (CAC) por Canal</p>
+                        <button class="text-slate-400 hover:text-blue-500"><i class="fas fa-ellipsis-h"></i></button>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4 flex-1">
+                        <div class="bg-slate-50 rounded-lg border border-slate-200 p-4 flex flex-col justify-center items-center text-center">
+                            <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mb-2">
+                                <i class="fas fa-ad"></i>
+                            </div>
+                            <p class="text-xs text-slate-500 font-semibold uppercase tracking-wide">Tráfego Pago</p>
+                            <p class="text-xl font-bold text-slate-800 mt-1">R$ 850</p>
+                        </div>
+                        <div class="bg-slate-50 rounded-lg border border-slate-200 p-4 flex flex-col justify-center items-center text-center">
+                            <div class="w-10 h-10 rounded-full bg-green-100 text-green-600 flex items-center justify-center mb-2">
+                                <i class="fas fa-handshake"></i>
+                            </div>
+                            <p class="text-xs text-slate-500 font-semibold uppercase tracking-wide">Indicações</p>
+                            <p class="text-xl font-bold text-slate-800 mt-1">R$ 120</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-5 bg-blue-50 rounded-lg p-3 border border-blue-100 flex justify-between items-center">
+                        <span class="text-sm font-medium text-slate-700">Ticket Médio (Novos Contratos):</span>
+                        <span class="text-lg font-bold text-blue-700">R$ 2.450,00</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- NÍVEL OPERACIONAL -->
+        <section class="pb-10">
+            <h3 class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4 flex items-center gap-2">
+                <i class="fas fa-cogs text-slate-500"></i> Nível Operacional (Produtividade e SLA)
+            </h3>
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 text-slate-600 text-xs uppercase tracking-wider border-b border-slate-200">
+                                <th class="p-4 font-semibold">Equipa / Setor</th>
+                                <th class="p-4 font-semibold">SLA de Atendimento</th>
+                                <th class="p-4 font-semibold">Tempo Médio Resolução</th>
+                                <th class="p-4 font-semibold">Status Produtividade (Horas)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-sm text-slate-700 divide-y divide-slate-100">
+                            <tr class="hover:bg-slate-50/50 transition-colors">
+                                <td class="p-4 font-medium flex items-center gap-3">
+                                    <div class="w-2 h-2 rounded-full bg-blue-500"></div>
+                                    Contábil / Fiscal
+                                </td>
+                                <td class="p-4">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-slate-800 font-semibold">98.5%</span>
+                                        <div class="w-16 h-2 bg-slate-200 rounded-full overflow-hidden">
+                                            <div class="bg-green-500 h-full rounded-full" style="width: 98.5%"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="p-4 text-slate-600">4.2 horas</td>
+                                <td class="p-4">
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-green-50 text-green-700 border border-green-200">
+                                        <i class="fas fa-check-circle"></i> Dentro do Orçado
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/50 transition-colors">
+                                <td class="p-4 font-medium flex items-center gap-3">
+                                    <div class="w-2 h-2 rounded-full bg-purple-500"></div>
+                                    Auditoria e Consultoria
+                                </td>
+                                <td class="p-4">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-slate-800 font-semibold">85.0%</span>
+                                        <div class="w-16 h-2 bg-slate-200 rounded-full overflow-hidden">
+                                            <div class="bg-amber-500 h-full rounded-full" style="width: 85%"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="p-4 text-slate-600">12.5 horas</td>
+                                <td class="p-4">
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-red-50 text-red-700 border border-red-200">
+                                        <i class="fas fa-exclamation-triangle"></i> +15% horas excedidas
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/50 transition-colors">
+                                <td class="p-4 font-medium flex items-center gap-3">
+                                    <div class="w-2 h-2 rounded-full bg-teal-500"></div>
+                                    Suporte Técnico BPO
+                                </td>
+                                <td class="p-4">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-slate-800 font-semibold">95.2%</span>
+                                        <div class="w-16 h-2 bg-slate-200 rounded-full overflow-hidden">
+                                            <div class="bg-green-500 h-full rounded-full" style="width: 95.2%"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="p-4 text-slate-600">1.5 horas</td>
+                                <td class="p-4">
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-green-50 text-green-700 border border-green-200">
+                                        <i class="fas fa-check-circle"></i> Dentro do Orçado
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+</body>
+</html>
