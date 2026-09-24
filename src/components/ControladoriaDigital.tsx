@@ -1,0 +1,1 @@
+export { ControladoriaDigital } from '../ControladoriaDigital';

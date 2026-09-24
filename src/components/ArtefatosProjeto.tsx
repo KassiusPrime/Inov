@@ -1,0 +1,1 @@
+export { ArtefatosProjeto } from '../ArtefatosProjeto';

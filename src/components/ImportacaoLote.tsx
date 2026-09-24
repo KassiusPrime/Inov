@@ -1,0 +1,1 @@
+export { ImportacaoLote } from '../ImportacaoLote';

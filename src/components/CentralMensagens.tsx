@@ -1,0 +1,1 @@
+export { CentralMensagens } from '../CentralMensagens';

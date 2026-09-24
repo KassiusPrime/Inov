@@ -1,0 +1,1 @@
+export { DashboardAuditoria } from '../DashboardAuditoria';

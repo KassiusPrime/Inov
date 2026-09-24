@@ -1,0 +1,1 @@
+export { ModelagemPowerBI } from '../ModelagemPowerBI';
