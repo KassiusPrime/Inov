@@ -1,7 +1,5 @@
 # MANUAL DE OPERAÇÃO E ARQUITETURA — SISTEMA INOV
 **Controle Inteligente de E-mails por Área, Ingestão de Documentos & Mala Direta Padronizada**  
-**EcoRodovias SP (Ecovias dos Imigrantes, Ecopistas, Econoroeste, Raposo Castello)**
-
 ---
 
 ## 1. VISÃO GERAL DO SISTEMA INOV
