@@ -1,0 +1,6 @@
+{
+  "name": "SISTEMA INOV — EcoRodovias SP",
+  "description": "GCC Plano Tático & Orquestrador: Controle de e-mails por área, governança de terceiros e contratos, auditoria de dados e mala direta integrada para as concessões EcoRodovias SP.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

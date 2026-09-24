@@ -1,0 +1,54 @@
+{
+  "project": "Inov",
+  "organization": "EcoRodovias SP",
+  "description": "Catálogo de Estruturas Padronizadas de E-mail com Substituição Dinâmica de Variáveis-Chave",
+  "variables": {
+    "{CONCESSAO}": "Concessão ou conjunto de concessões filtradas (ex: Imigrantes, Leste Paulista, Econoroeste, Raposo Castello)",
+    "{AREA}": "Área ou sigla departamental de destino (ex: GEN, GAU, CSU, RH, AJL, DTC, COM, DAM, DS)",
+    "{NOMES_DESTAQUE}": "Nomes dos pontos focais e integrantes destacados da triagem",
+    "{GESTOR}": "Gestor responsável pela área departamental",
+    "{DATA_ATUAL}": "Data atual de emissão formatada em padrão brasileiro (DD/MM/AAAA)",
+    "{PRAZO}": "Data ou prazo limite estipulado para retorno ou cumprimento da demanda",
+    "{REFERENCIA_DOCUMENTO}": "Número de ofício, processo SEI, termo contratual ou documento técnico",
+    "{ASSUNTO}": "Pauta central ou tema do e-mail",
+    "{CORPO_TEXTO}": "Detalhamento operacional, orientações de campo ou texto livre"
+  },
+  "templates": [
+    {
+      "id": "comunicado",
+      "name": "Comunicado Operacional / Rotina",
+      "subject": "[INOV / {CONCESSAO}] Comunicado Operacional — Área {AREA}",
+      "body": "Prezados(as) integrantes da equipe ({AREA} — {CONCESSAO}),\n\nComunicamos formalmente as seguintes diretrizes operacionais e administrativas:\n\n{CORPO_TEXTO}\n\nSolicitamos que todos os pontos focais e integrantes tomem ciência e repliquem as orientações às respectivas equipes de campo e suporte.\n\nData de Emissão: {DATA_ATUAL}\nResponsáveis pelas Áreas: {GESTOR}\n\nAtenciosamente,\nCoordenação de Governança & Comunicações Operacionais\nEcoRodovias SP"
+    },
+    {
+      "id": "cobranca",
+      "name": "Cobrança de Prazo & Notificação de Pendência",
+      "subject": "[URGENTE / PRAZO: {PRAZO}] Notificação de Pendência — {CONCESSAO} ({AREA})",
+      "body": "Prezados(as) {NOMES_DESTAQUE},\n\nReportamos a existência de pendência operacional/documental referente ao processo institucional, com vencimento impreterível para {PRAZO}:\n\n• Concessão(ões): {CONCESSAO}\n• Área(s) Envolvida(s): {AREA}\n• Referência Documental / Processo: {REFERENCIA_DOCUMENTO}\n• Pauta / Detalhamento: {CORPO_TEXTO}\n\nPedimos a gentileza de acusar o recebimento deste comunicado e encaminhar o retorno conclusivo até o prazo estipulado ({PRAZO}) para manter a conformidade com as diretrizes da ARTESP e governança interna.\n\nAtenciosamente,\nGestão de Comunicações & Prazos Contratuais\nEcoRodovias SP"
+    },
+    {
+      "id": "convocacao",
+      "name": "Convocação de Reunião & Alinhamento de Pauta",
+      "subject": "[CONVOCAÇÃO] Reunião de Alinhamento Técnico — {AREA} ({CONCESSAO})",
+      "body": "Prezados(as) {NOMES_DESTAQUE},\n\nConvocamos os pontos focais e integrantes das áreas ({AREA}) da {CONCESSAO} para reunião técnica de alinhamento:\n\n• Pauta Principal: {ASSUNTO}\n• Detalhamento / Objetivos: {CORPO_TEXTO}\n• Data / Prazo Limite de Confirmação: {PRAZO}\n• Documento de Apoio: {REFERENCIA_DOCUMENTO}\n• Local: Microsoft Teams (convite de calendário encaminhado a todos os destinatários em cópia oculta)\n\nContamos com a pontualidade e a participação de todos os setores envolvidos.\n\nAtenciosamente,\nCoordenação Técnica & Gestão de Pautas\nEcoRodovias SP"
+    },
+    {
+      "id": "solicitacao",
+      "name": "Solicitação Técnica & Coleta de Dados",
+      "subject": "[SOLICITAÇÃO] Coleta de Informações / Procedimentos — {CONCESSAO} ({AREA})",
+      "body": "Prezada equipe da {AREA} ({CONCESSAO}),\n\nEm alinhamento aos procedimentos de governança institucional, solicitamos o fornecimento das seguintes informações / insumos:\n\n{CORPO_TEXTO}\n\n• Referência Documental: {REFERENCIA_DOCUMENTO}\n• Prazo Solicitado para Retorno: {PRAZO}\n• Gestor Responsável: {GESTOR}\n\nFicamos à disposição para quaisquer dúvidas operacionais.\n\nAtenciosamente,\nEquipe de Gestão e Suporte aos Pontos Focais\nEcoRodovias SP"
+    },
+    {
+      "id": "circular",
+      "name": "Circular Institucional às Concessões",
+      "subject": "[CIRCULAR INSTITUCIONAL] Diretriz Corporativa — Concessões EcoRodovias SP",
+      "body": "Prezados Gestores, Especialistas e Pontos Focais ({CONCESSAO}),\n\nEncaminhamos a presente Circular Institucional referente à pauta: \"{ASSUNTO}\".\n\n{CORPO_TEXTO}\n\n• Data de Registro: {DATA_ATUAL}\n• Abrangência: Setores {AREA} de {CONCESSAO}\n• Documento Associado: {REFERENCIA_DOCUMENTO}\n\nContamos com a habitual cooperação e estrita observância das normas regulatórias.\n\nAtenciosamente,\nDiretoria de Governança, Contratos & Operações\nEcoRodovias SP"
+    },
+    {
+      "id": "customizado",
+      "name": "Modelo Livre com Tags Dinâmicas",
+      "subject": "[INOV] {ASSUNTO} — {CONCESSAO}",
+      "body": "Prezada equipe {AREA} ({CONCESSAO}),\n\n{CORPO_TEXTO}\n\nReferência: {REFERENCIA_DOCUMENTO}\nPrazo: {PRAZO}\nData: {DATA_ATUAL}\n\nAtenciosamente,\nSistema Inov — EcoRodovias SP"
+    }
+  ]
+}
