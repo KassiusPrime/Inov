@@ -1,1 +1,1 @@
-export * from '../initialContacts';
+export * from '../../initialContacts';

@@ -1,1 +1,1 @@
-export { ArtefatosProjeto } from '../ArtefatosProjeto';
+export { ArtefatosProjeto } from '../../ArtefatosProjeto';

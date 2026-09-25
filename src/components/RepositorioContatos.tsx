@@ -1,1 +1,1 @@
-export { RepositorioContatos } from '../RepositorioContatos';
+export { RepositorioContatos } from '../../RepositorioContatos';

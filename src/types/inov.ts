@@ -1,1 +1,1 @@
-export * from '../inov';
+export * from '../../inov';

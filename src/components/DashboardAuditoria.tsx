@@ -1,1 +1,1 @@
-export { DashboardAuditoria } from '../DashboardAuditoria';
+export { DashboardAuditoria } from '../../DashboardAuditoria';

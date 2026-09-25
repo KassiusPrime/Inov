@@ -1,1 +1,1 @@
-export * from '../artifactsData';
+export * from '../../artifactsData';

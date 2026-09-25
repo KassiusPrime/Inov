@@ -1,1 +1,1 @@
-export { ModelagemPowerBI } from '../ModelagemPowerBI';
+export { ModelagemPowerBI } from '../../ModelagemPowerBI';

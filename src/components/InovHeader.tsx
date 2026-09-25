@@ -1,1 +1,1 @@
-export { InovHeader } from '../InovHeader';
+export { InovHeader } from '../../InovHeader';

@@ -1,1 +1,1 @@
-export { CentralMensagens } from '../CentralMensagens';
+export { CentralMensagens } from '../../CentralMensagens';

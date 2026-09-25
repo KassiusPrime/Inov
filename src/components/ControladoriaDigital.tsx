@@ -1,1 +1,1 @@
-export { ControladoriaDigital } from '../ControladoriaDigital';
+export { ControladoriaDigital } from '../../ControladoriaDigital';

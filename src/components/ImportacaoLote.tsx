@@ -1,1 +1,1 @@
-export { ImportacaoLote } from '../ImportacaoLote';
+export { ImportacaoLote } from '../../ImportacaoLote';
